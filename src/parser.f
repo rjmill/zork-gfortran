@@ -40,7 +40,7 @@ C
 	PRSCON=1				! restart lex scan.
 	RETURN
 	END
-
+
 C PARSE-	Top level parse routine
 C
 C Declarations
@@ -56,7 +56,7 @@ C
 	SAVE BAKBUF,BAKLEN
 	DATA BAKBUF(1)/'L'/,BAKLEN/1/
 C
-	DFLAG=(PRSFLG.AND.1).NE.0
+	DFLAG=AND(PRSFLG,1).NE.0
 	PARSE=.FALSE.				! assume fails.
 	PRSA=0					! zero outputs.
 	PRSI=0
@@ -96,7 +96,7 @@ C
 	RETURN
 C
 	END
-
+
 C LEX-	Lexical analyzer
 C
 C Declarations
@@ -111,7 +111,7 @@ C
 	CHARACTER*1 J
 	LOGICAL DFLAG,VBFLAG
 C
-	DFLAG=(PRSFLG.AND.2).NE.0
+	DFLAG=AND(PRSFLG,2).NE.0
 	LEX=.FALSE.				! assume lex fails.
 	OP=0					! output ptr.
 	DO 10 I=1,LEXMAX			! clear output buf.
@@ -187,7 +187,7 @@ C
 	RETURN
 C
 	END
-
+
 C SPARSE-	Start of parse
 C
 C Declarations
@@ -202,7 +202,7 @@ C
 	LOGICAL LIT,DFLAG,VBFLAG,ANDFLG,BUNFLG
 	INTEGER OBJVEC(2),PRPVEC(2)
 	EQUIVALENCE (OBJVEC(1),OBJ1),(PRPVEC(1),PREP1)
-
+
 C SPARSE, PAGE 2
 C
 C Vocabularies
@@ -239,7 +239,7 @@ C
 	4 XUP,XUP,XDOWN,XDOWN,
 	5 XLAUN,XLAND,XEXIT,XEXIT,
 	6 XCROSS,XENTER,XCROSS,0,0/
-
+
 C SPARSE, PAGE 3
 C
 C Adjectives--	maps adjectives to object numbers
@@ -344,7 +344,7 @@ C
 	5 204,199,205,207,
 	6 207,23,253,-254,104,-148,
 	7 12*0/
-
+
 C SPARSE, PAGE 4
 C
 C OBJECTS--	Maps objects to object indices,
@@ -557,7 +557,7 @@ C
 	2 151,263,42,42,
 	3 72,-73,37,-45,146,-147,211,
 	4 24*0/
-
+
 C SPARSE, PAGE 5
 C
 C VERBS--	Maps verbs to syntax slots
@@ -603,7 +603,7 @@ C	  0	  1	 HAVE		adventurer must have object
 C	  1	  0	 TRY		try to take, dont care if fail
 C	  1	  1	 TAKE		try to take, care if fail
 C
-
+
 C SPARSE, PAGE 6
 C
 	DATA (VWORD(I),I=1,43) /
@@ -795,7 +795,7 @@ C
 	3	'40202'O,'21005'O,0,2,'40203'O,'21015'O,0,2,
 	3	'60204'O,'61000'O,'20000'O,'40'O,'61015'O,-1,-1,
 	3 1,'50141'O,13*0/
-
+
 C SPARSE, PAGE 7
 C
 C Set up for parsing
@@ -812,8 +812,8 @@ C
 	LOBJ=0
 	ANDFLG=.FALSE.
 	BUNFLG=.FALSE.
-	DFLAG=(PRSFLG.AND.4).NE.0
-
+	DFLAG=AND(PRSFLG,4).NE.0
+
 C SPARSE, PAGE 8
 C
 C Now loop over input buffer of lexical tokens.
@@ -845,7 +845,7 @@ C
 C
 75	  IF((ADJ.NE.0).OR.(PREP.NE.0).OR.(OBJ1.NE.0)) GO TO 200
 	  IF(ACT.EQ.0) GO TO 80			! any verb yet?
-	  IF((VVOC(ACT+1).AND.SVMASK).NE.WALKW) GO TO 200	! walk?
+	  IF((AND(VVOC(ACT+1),SVMASK)).NE.WALKW) GO TO 200	! walk?
 80	  DO 100 J=1,DWMAX			! then chk for dir.
 	    IF(WORD.EQ.DWORD(J)) GO TO 3000	! match to direction?
 100	  CONTINUE
@@ -880,7 +880,7 @@ C
 800	  TELFLG=.TRUE.				! something said.
 	  BUNSUB=0				! no valid EXCEPT clause.
 	  RETURN
-
+
 C SPARSE, PAGE 9
 C
 1000	IF(I.LT.LLNT) GO TO 10			! end of do loop
@@ -896,9 +896,9 @@ C
 	IF(BUNFLG) OBJ1=BUNOBJ			! bunched object?
 	IF(BUNFLG.AND.(BUNSUB.NE.0).AND.(BUNLNT.EQ.0))
 	1	GO TO 13200			! except for nothing?
-	IF(ACT.EQ.0) ACT=OFLAG.AND.OACT		! if no action, take orphan.
+	IF(ACT.EQ.0) ACT=AND(OFLAG,OACT)		! if no action, take orphan.
 	IF(ACT.EQ.0) GO TO 10000		! no action, punt.
-	IF(((VVOC(ACT+1).AND.SVMASK).NE.WALKW).OR.(OBJ1.LT.XMIN))
+	IF((AND(VVOC(ACT+1),SVMASK).NE.WALKW).OR.(OBJ1.LT.XMIN))
 	1	GO TO 1100			! simple direction?
 	IF ((OBJ2.NE.0).OR.(PREP1.NE.0).OR.(PREP2.NE.0))
 	1	GO TO 1050			! no extra junk?
@@ -922,7 +922,7 @@ C
 	IF(DFLAG) WRITE(OUTCH,1310) ACT,OBJ1,OBJ2,PREP1,PREP2
 1310	FORMAT(' SPARSE RESULTS- ',5I7)
 	RETURN
-
+
 C SPARSE, PAGE 10
 C
 C 1500--	AND
@@ -969,7 +969,7 @@ C
 3000	OBJ=DVOC(J)				! save direction.
 	ACT=1					! find value for action.
 3600	IF(VVOC(ACT).EQ.0) CALL BUG(310,ACT)	! can't find walk.
-	IF((VVOC(ACT+1).AND.SVMASK).EQ.WALKW) GO TO 6300 ! treat as obj.
+	IF(AND(VVOC(ACT+1),SVMASK).EQ.WALKW) GO TO 6300 ! treat as obj.
 	ACT=ACT+VVOC(ACT)+1			! to next syntax entry.
 	GO TO 3600
 C
@@ -1006,7 +1006,7 @@ C
 6010	FORMAT(' SPARSE- OBJ AT ',I6,'  OBJ= ',I6)
 	IF(OBJ.LE.0) GO TO 7000			! if le, couldnt.
 	IF(OBJ.NE.ITOBJ) GO TO 6100		! "it"?
-	IF((OFLAG.AND.OOBJ1).NE.0) LASTIT=OFLAG.AND.OOBJ1	! orphan?
+	IF(AND(OFLAG,OOBJ1).NE.0) LASTIT=AND(OFLAG,OOBJ1)	! orphan?
 	OBJ=GETOBJ(0,0,LASTIT)			! find it.
 	IF(OBJ.LE.0) GO TO 7500			! if le, couldnt.
 C
@@ -1037,7 +1037,7 @@ C
 	ANDFLG=.FALSE.				! no pending 'AND'.
 	LOBJ=OBJ				! record last object.
 	GO TO 1000
-
+
 C SPARSE, PAGE 11
 C
 C 7000--	Unidentifiable object (index into OVOC is J)
@@ -1059,7 +1059,7 @@ C
 	IF(VBFLAG) CALL RSPSUB(620,ODESC2(AVEHIC(WINNER)))
 	GO TO 800				! go clean up state.
 C
-7300	IF(ACT.EQ.0) ACT=OFLAG.AND.OACT		! if no act, get orphan.
+7300	IF(ACT.EQ.0) ACT=AND(OFLAG,OACT)		! if no act, get orphan.
 	CALL ORPHAN(-1,ACT,PREP1,OBJ1,PREP,WORD,0,0)	! orphan the world.
 	IF(VBFLAG) WRITE(OUTCH,7310)
 	1	LCWRD1(1:NBLEN(LCWRD1)+1),LCWORD(1:NBLEN(LCWORD))
@@ -1131,7 +1131,7 @@ C
 	GO TO 800				! go clean up state.
 C
 	END
-
+
 C GETOBJ--	Find obj described by adj, name pair
 C
 C Declarations
@@ -1143,7 +1143,7 @@ C
 	INCLUDE 'dparam.for'
 	LOGICAL THISIT,GHERE,LIT,CHOMP,DFLAG,NOADJS
 C
-	DFLAG=(PRSFLG.AND.8).NE.0
+	DFLAG=AND(PRSFLG,8).NE.0
 	CHOMP=.FALSE.
 	AV=AVEHIC(WINNER)
 	OBJ=0					! assume dark.
@@ -1154,7 +1154,7 @@ C
 10	FORMAT(' SCHLST- ROOM SCH ',I6)
 	IF(OBJ) 1000,200,100			! test result.
 100	IF((AV.EQ.0).OR.(AV.EQ.OBJ).OR.(OCAN(OBJ).EQ.AV).OR.
-	1	((OFLAG2(OBJ).AND.FINDBT).NE.0)) GO TO 200
+	1	(AND(OFLAG2(OBJ),FINDBT).NE.0)) GO TO 200
 	CHOMP=.TRUE.				! not reachable.
 C
 200	IF(AV.EQ.0) GO TO 400			! in vehicle?
@@ -1199,7 +1199,7 @@ C
 1540	FORMAT(' SCHLST- RESULT   ',I6)
 	RETURN
 	END
-
+
 C SCHLST--	Search for object
 C
 C Declarations
@@ -1211,9 +1211,9 @@ C
 C
 C Functions and data
 C
-	NOTRAN(O)=((OFLAG1(O).AND.TRANBT).EQ.0).AND.
-	1	((OFLAG2(O).AND.OPENBT).EQ.0)
-	NOVIS(O)=((OFLAG1(O).AND.VISIBT).EQ.0)
+	NOTRAN(O)=(AND(OFLAG1(O),TRANBT).EQ.0).AND.
+	1	(AND(OFLAG2(O),OPENBT).EQ.0)
+	NOVIS(O)=(AND(OFLAG1(O),VISIBT).EQ.0)
 C
 	SCHLST=0				! no result.
 	AEMPTY=.FALSE.				! no ambiguous empty.
@@ -1249,7 +1249,7 @@ C
 300	    IF(X.EQ.I) GO TO 400		! inside target?
 	    IF(X.EQ.0) GO TO 500		! inside anything?
 	    IF(NOVIS(X).OR.NOTRAN(X).OR.
-	1	((OFLAG2(X).AND.SCHBT).EQ.0)) GO TO 500
+	1	(AND(OFLAG2(X),SCHBT).EQ.0)) GO TO 500
 	    X=OCAN(X)				! go another level.
 	    GO TO 300
 C
@@ -1270,7 +1270,7 @@ C
 	RETURN
 C
 	END
-
+
 C THISIT--	Validate object vs description
 C
 C Declarations
@@ -1301,7 +1301,7 @@ C
 500	THISIT=.TRUE.
 	RETURN
 	END
-
+
 C SYNMCH--	Syntax matcher
 C
 C Declarations
@@ -1315,22 +1315,22 @@ C
 	CHARACTER*(TEXLNT) STR
 	CHARACTER*(WRDLNT) FINDVB,FINDPR,LCIFY,LCWORD
 	CHARACTER*(WRDLNT+2) LCPRP1,LCPRP2
-
+
 C SYNMCH, PAGE 2
 C
 	SYNMCH=.FALSE.
-	DFLAG=(PRSFLG.AND.16).NE.0
+	DFLAG=AND(PRSFLG,16).NE.0
 	J=ACT					! set up ptr to syntax.
 	DRIVE=0					! no default.
 	DFORCE=0				! no forced default.
-	QPREP=OFLAG.AND.OPREP			! valid orphan prep flag.
+	QPREP=AND(OFLAG,OPREP)			! valid orphan prep flag.
 	LIMIT=J+VVOC(J)+1			! compute limit.
 	J=J+1					! advance to next.
 C
 200	CALL UNPACK(J,NEWJ)			! unpack syntax.
 	IF(DFLAG) WRITE(OUTCH,210) J,OBJ1,PREP1,DOBJ,DFL1,DFL2
 210	FORMAT(' SYNMCH DOBJ INPUTS TO SYNEQL- ',6I7)
-	SPREP=DOBJ.AND.VPMASK			! save expected prep.
+	SPREP=AND(DOBJ,VPMASK)			! save expected prep.
 	IF(SYNEQL(PREP1,OBJ1,DOBJ,DFL1,DFL2)) GO TO 1000
 C
 C Direct syntax match fails, try direct as indirect.
@@ -1354,19 +1354,19 @@ C Direct syntax match succeeded, try indirect.
 C
 1000	IF(DFLAG) WRITE(OUTCH,1010) J,OBJ2,PREP2,IOBJ,IFL1,IFL2
 1010	FORMAT(' SYNMCH IOBJ INPUTS TO SYNEQL- ',6I7)
-	SPREP=IOBJ.AND.VPMASK			! save expected prep.
+	SPREP=AND(IOBJ,VPMASK)			! save expected prep.
 	IF(SYNEQL(PREP2,OBJ2,IOBJ,IFL1,IFL2)) GO TO 6000
 C
 C Indirect syntax match fails.
 C
 	IF(OBJ2.NE.0) GO TO 3000		! if ind object, on to next.
 2500	IF((QPREP.EQ.0).OR.(QPREP.EQ.SPREP)) DFORCE=J	 ! if prep mch.
-	IF((VFLAG.AND.SDRIV).NE.0) DRIVE=J	! if driver, record.
+	IF(AND(VFLAG,SDRIV).NE.0) DRIVE=J	! if driver, record.
 	IF(DFLAG) WRITE(OUTCH,2510) J,QPREP,SPREP,DFORCE,DRIVE
 2510	FORMAT(' SYNMCH DEFAULT SYNTAXES- ',5I7)
 3000	J=NEWJ
 	IF(J.LT.LIMIT) GO TO 200		! more to do?
-
+
 C SYNMCH, PAGE 3
 C
 C Match has failed.  If default syntax exists, try to snarf
@@ -1378,13 +1378,13 @@ C
 	IF(DRIVE.EQ.0) GO TO 10000		! any driver?
 	CALL UNPACK(DRIVE,DFORCE)		! unpack dflt syntax.
 	LCWORD=LCIFY(FINDVB(DRIVE),2)		! get verb string.
-	LCPRP1=' '//LCIFY(FINDPR(DOBJ.AND.VPMASK),1)//' '
-	LCPRP2=' '//LCIFY(FINDPR(IOBJ.AND.VPMASK),1)//' '
+	LCPRP1=' '//LCIFY(FINDPR(AND(DOBJ,VPMASK)),1)//' '
+	LCPRP2=' '//LCIFY(FINDPR(AND(IOBJ,VPMASK)),1)//' '
 C
 C Try to fill direct object slot if that was the problem.
 C
-	IF(((VFLAG.AND.SDIR).EQ.0).OR.(OBJ1.NE.0)) GO TO 4000
-	OBJ1=OFLAG.AND.OOBJ1
+	IF((AND(VFLAG,SDIR).EQ.0).OR.(OBJ1.NE.0)) GO TO 4000
+	OBJ1=AND(OFLAG,OOBJ1)
 	IF(OBJ1.EQ.0) GO TO 3500		! any orphan?
 	IF(SYNEQL(OPREP1,OBJ1,DOBJ,DFL1,DFL2)) GO TO 4000
 C
@@ -1394,7 +1394,7 @@ C
 	IF(DFLAG) WRITE(OUTCH,3530) OBJ1
 3530	FORMAT(' SYNMCH- DO GWIM= ',I6)
 	IF(OBJ1.GT.0) GO TO 4000		! test result.
-	CALL ORPHAN(-1,ACT,0,0,DOBJ.AND.VPMASK,' ',PREP2,OBJ2)	! fails, orphan.
+	CALL ORPHAN(-1,ACT,0,0,AND(DOBJ,VPMASK),' ',PREP2,OBJ2)	! fails, orphan.
 	BUNSUB=0				! no EXCEPT clause.
 	IF(OBJ2.GT.0) GO TO 3800		! if iobj, go print.
 3700	WRITE(OUTCH,3750)
@@ -1412,13 +1412,13 @@ C
 3880	FORMAT(1X,A,A,'what',A,'the ',A,'?')
 	TELFLG=.TRUE.
 	RETURN
-
+
 C SYNMCH, PAGE 4
 C
 C Try to fill indirect object slot if that was the problem.
 C
-4000	IF(((VFLAG.AND.SIND).EQ.0).OR.(OBJ2.NE.0)) GO TO 6000
-	OBJ2=OFLAG.AND.OOBJ2
+4000	IF((AND(VFLAG,SIND).EQ.0).OR.(OBJ2.NE.0)) GO TO 6000
+	OBJ2=AND(OFLAG,OOBJ2)
 	IF(OBJ2.EQ.0) GO TO 4500		! any orphan?
 	IF(SYNEQL(OPREP2,OBJ2,IOBJ,IFL1,IFL2)) GO TO 6000
 C
@@ -1429,13 +1429,13 @@ C
 4550	FORMAT(' SYNMCH- IO GWIM= ',I6)
 	IF(OBJ2.GT.0) GO TO 6000
 	IF(OBJ1.GT.0) GO TO 4600		! if dobj, go print.
-	CALL ORPHAN(-1,ACT,OFLAG.AND.OPREP1,
-	1	OFLAG.AND.OOBJ1,IOBJ.AND.VPMASK,' ',0,0)
+	CALL ORPHAN(-1,ACT,AND(OFLAG,OPREP1),
+	1	AND(OFLAG,OOBJ1),AND(IOBJ,VPMASK),' ',0,0)
 	GO TO 3700
 C
 C Error with direct object available.
 C
-4600	CALL ORPHAN(-1,ACT,PREP1,OBJ1,IOBJ.AND.VPMASK,' ',0,0)
+4600	CALL ORPHAN(-1,ACT,PREP1,OBJ1,AND(IOBJ,VPMASK),' ',0,0)
 	X=IABS(ODESC2(OBJ1))			! get dobj description.
 	READ(DBCH,REC=X) J,STR			! read data base.
 	CALL TXCRYP(X,STR)			! decrypt the line.
@@ -1451,18 +1451,18 @@ C
 10000	CALL RSPEAK(601)			! cant do anything.
 	BUNSUB=0
 	RETURN
-
+
 C SYNMCH, PAGE 5
 C
 C Now try to take individual objects and
 C in general clean up the parse vector.
 C
-6000	IF((VFLAG.AND.SFLIP).EQ.0) GO TO 7000	! flip?
+6000	IF(AND(VFLAG,SFLIP).EQ.0) GO TO 7000	! flip?
 	J=OBJ1					! yes.
 	OBJ1=OBJ2
 	OBJ2=J
 C
-7000	PRSA=VFLAG.AND.SVMASK			! get verb.
+7000	PRSA=AND(VFLAG,SVMASK)			! get verb.
 	PRSO=OBJ1				! get dir obj.
 	PRSI=OBJ2				! get ind obj.
 	IF(.NOT.TAKEIT(PRSO,DOBJ)) RETURN	! try take.
@@ -1473,7 +1473,7 @@ C
 	RETURN
 C
 	END
-
+
 C UNPACK-	Unpack syntax specification, adv pointer
 C
 C Declarations
@@ -1488,10 +1488,10 @@ C
 C
 	VFLAG=VVOC(OLDJ)
 	J=OLDJ+1
-	IF((VFLAG.AND.SDIR).EQ.0) RETURN	! dir object?
+	IF(AND(VFLAG,SDIR).EQ.0) RETURN	! dir object?
 	DFL1=-1					! assume std.
 	DFL2=-1
-	IF((VFLAG.AND.SSTD).EQ.0) GO TO 100	! std object?
+	IF(AND(VFLAG,SSTD).EQ.0) GO TO 100	! std object?
 	DFW1=-1					! yes.
 	DFW2=-1
 	DOBJ=VABIT+VRBIT+VFBIT
@@ -1501,24 +1501,24 @@ C
 	DFW1=VVOC(J+1)
 	DFW2=VVOC(J+2)
 	J=J+3
-	IF((DOBJ.AND.VEBIT).EQ.0) GO TO 200	! vbit = vfwim?
+	IF(AND(DOBJ,VEBIT).EQ.0) GO TO 200	! vbit = vfwim?
 	DFL1=DFW1				! yes.
 	DFL2=DFW2
 C
-200	IF((VFLAG.AND.SIND).EQ.0) RETURN	! ind object?
+200	IF(AND(VFLAG,SIND).EQ.0) RETURN	! ind object?
 	IFL1=-1					! assume std.
 	IFL2=-1
 	IOBJ=VVOC(J)
 	IFW1=VVOC(J+1)
 	IFW2=VVOC(J+2)
 	J=J+3
-	IF((IOBJ.AND.VEBIT).EQ.0) RETURN	! vbit = vfwim?
+	IF(AND(IOBJ,VEBIT).EQ.0) RETURN	! vbit = vfwim?
 	IFL1=IFW1				! yes.
 	IFL2=IFW2
 	RETURN
 C
 	END
-
+
 C SYNEQL-	Test for syntax equality
 C
 C Declarations
@@ -1528,16 +1528,16 @@ C
 	INCLUDE 'dparam.for'
 C
 	IF(OBJ.EQ.0) GO TO 100			! any object?
-	SYNEQL=(PREP.EQ.(SPREP.AND.VPMASK)).AND.
-	1	(((SFL1.AND.OFLAG1(OBJ)).OR.
-	2	  (SFL2.AND.OFLAG2(OBJ))).NE.0)
+	SYNEQL=(PREP.EQ.AND(SPREP,VPMASK)).AND.
+	1	(OR(AND(SFL1,OFLAG1(OBJ)),
+	2	  AND(SFL2,OFLAG2(OBJ))).NE.0)
 	RETURN
 C
 100	SYNEQL=(PREP.EQ.0).AND.(SFL1.EQ.0).AND.(SFL2.EQ.0)
 	RETURN
 C
 	END
-
+
 C TAKEIT-	Parser based take of object
 C
 C Declarations
@@ -1552,13 +1552,13 @@ C
 	1	GO TO 4000			! null/stars/dead win.
 	ODO2=ODESC2(OBJ)			! get desc.
 	X=OCAN(OBJ)				! get container.
-	IF((X.EQ.0).OR.((SFLAG.AND.VFBIT).EQ.0)) GO TO 500
-	IF((OFLAG2(X).AND.OPENBT).NE.0) GO TO 500
+	IF((X.EQ.0).OR.(AND(SFLAG,VFBIT).EQ.0)) GO TO 500
+	IF(AND(OFLAG2(X),OPENBT).NE.0) GO TO 500
 	CALL RSPSUB(566,ODO2)			! cant reach.
 	RETURN
 C
-500	IF((SFLAG.AND.VRBIT).EQ.0) GO TO 1000	! shld be in room?
-	IF((SFLAG.AND.VTBIT).EQ.0) GO TO 2000	! can be taken?
+500	IF(AND(SFLAG,VRBIT).EQ.0) GO TO 1000	! shld be in room?
+	IF(AND(SFLAG,VTBIT).EQ.0) GO TO 2000	! can be taken?
 C
 C Should be in room (VRBIT NE 0) and can be taken (VTBIT NE 0)
 C
@@ -1566,18 +1566,18 @@ C
 C
 C Its in the room and can be taken.
 C
-	IF((OFLAG1(OBJ).AND.TAKEBT).NE.0) GO TO 3000
+	IF(AND(OFLAG1(OBJ),TAKEBT).NE.0) GO TO 3000
 C
 C Not takeable.  If we care, fail.
 C
-	IF((SFLAG.AND.VCBIT).EQ.0) GO TO 4000	! if no care, return.
+	IF(AND(SFLAG,VCBIT).EQ.0) GO TO 4000	! if no care, return.
 	CALL RSPSUB(445,ODO2)
 	RETURN
 C
 C 1000--	It should not be in the room.
 C 2000--	It cant be taken.
 C
-2000	IF((SFLAG.AND.VCBIT).EQ.0) GO TO 4000	! if no care, return
+2000	IF(AND(SFLAG,VCBIT).EQ.0) GO TO 4000	! if no care, return
 1000	IF(SCHLST(0,0,HERE,0,0,OBJ).LE.0) GO TO 4000
 	I=665					! assume player.
 	IF(WINNER.NE.PLAYER) I=1082
@@ -1608,7 +1608,7 @@ C
 	RETURN
 C
 	END
-
+
 C GWIM- Get what I mean in ambiguous situations
 C
 C Declarations
@@ -1621,14 +1621,14 @@ C
 	GWIM=0					! no result.
 	IF(DEADF) RETURN			! dead? gwim disabled.
 	AV=AVEHIC(WINNER)
-	NOCARE=(SFLAG.AND.VCBIT).EQ.0
+	NOCARE=AND(SFLAG,VCBIT).EQ.0
 C
 C First search adventurer
 C
-	IF((SFLAG.AND.VABIT).NE.0)
+	IF(AND(SFLAG,VABIT).NE.0)
 	1	GWIM=FWIM(SFW1,SFW2,0,0,WINNER,NOCARE)
 	IF((GWIM.LT.0).OR..NOT.LIT(HERE).OR.
-	1  ((SFLAG.AND.VRBIT).EQ.0)) RETURN
+	1  (AND(SFLAG,VRBIT).EQ.0)) RETURN
 C
 C Also search room
 C
@@ -1638,7 +1638,7 @@ C
 C ROBJ > 0: if prev object, fail
 C
 200	IF((AV.EQ.0).OR.(ROBJ.EQ.AV).OR.
-	1	((OFLAG2(ROBJ).AND.FINDBT).NE.0)) GO TO 300
+	1	(AND(OFLAG2(ROBJ),FINDBT).NE.0)) GO TO 300
 	IF(OCAN(ROBJ).NE.AV) RETURN		! unreachable? use prev obj.
 C
 300	IF(GWIM.EQ.0) GO TO 400			! prev obj?
@@ -1650,7 +1650,7 @@ C
 600	RETURN
 C
 	END
-
+
 C NOADJS-	See if any adjectives for object
 C
 C Declarations
@@ -1668,7 +1668,7 @@ C
 	RETURN
 C
 	END
-
+
 C LCIFY-	"Lower case"-ify a string for printing
 C
 C Declarations
@@ -1689,7 +1689,7 @@ C
 	RETURN
 C
 	END
-
+
 C FINDVB-	Find verb string corresponding to syntax.
 C
 C Declarations
@@ -1712,7 +1712,7 @@ C
 	RETURN
 C
 	END
-
+
 C FINDPR-	Find preposition string corresponding to index.
 C
 C Declarations

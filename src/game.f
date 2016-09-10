@@ -18,7 +18,7 @@ C
 	INCLUDE 'dparam.for'
 	LOGICAL RMDESC,VAPPLI,AAPPLI,OBJACT
 	LOGICAL F,PARSE,FINDXT,XVEHIC,LIT,PRVLIT
-
+
 C GAME, PAGE 2
 C
 C Start up, describe current location.
@@ -61,7 +61,7 @@ C
 C
 900	CALL VALUAC(PRSO)			! collective object.
 	GO TO 350
-
+
 C GAME, PAGE 3
 C
 C Special case-- Echo Room.
@@ -73,7 +73,7 @@ C
 C
 	CALL RSPEAK(571)			! kill the echo.
 	ECHOF=.TRUE.
-	OFLAG2(BAR)=OFLAG2(BAR).AND. .NOT.SCRDBT ! let thief steal bar.
+	OFLAG2(BAR)=AND(OFLAG2(BAR), NOT(SCRDBT)) ! let thief steal bar.
 	PRSWON=.TRUE.				! fake out parser.
 	PRSCON=1				! force new input.
 	GO TO 400
@@ -95,7 +95,7 @@ C
 1410	FORMAT(1X,A)
 	TELFLG=.TRUE.				! indicate output.
 	GO TO 1000				! more echo room.
-
+
 C GAME, PAGE 4
 C
 C Special case-- TELL <ACTOR> "NEW COMMAND".
@@ -112,9 +112,9 @@ C
 	GO TO 2150
 C
 2100	IF(OBJACT(X)) GO TO 350			! object handle?
-	IF((OFLAG2(PRSO).AND.ACTRBT).NE.0) GO TO 2200 ! actor?
+	IF(AND(OFLAG2(PRSO),ACTRBT).NE.0) GO TO 2200 ! actor?
 	I=602
-	IF((OFLAG1(PRSO).AND.VICTBT).NE.0) I=888
+	IF(AND(OFLAG1(PRSO),VICTBT).NE.0) I=888
 	CALL RSPSUB(I,ODESC2(PRSO))		! no, joke.
 2150	PRSCON=0				! disable cmd stream.
 	GO TO 350
@@ -150,7 +150,7 @@ C
 	GO TO 2350
 C
 	END
-
+
 C XENDMV-	Execute end of move functions.
 C
 C Declarations
@@ -168,7 +168,7 @@ C
 	IF(PRSWON) F=XVEHIC(2)			! vehicle readout.
 	RETURN
 	END
-
+
 C XVEHIC- Execute vehicle function
 C
 C Declarations
@@ -183,7 +183,7 @@ C
 	IF(AV.NE.0) XVEHIC=OAPPLI(OACTIO(AV),N)
 	RETURN
 	END
-
+
 C INITFL-- DUNGEON file initialization subroutine
 C
 C Declarations
@@ -193,7 +193,7 @@ C
 	INCLUDE 'dparam.for'
 	LOGICAL PROTCT
 	CHARACTER*1 KEDIT
-
+
 C INITFL, PAGE 2
 C
 C First check for protection violation.
@@ -216,14 +216,14 @@ C
 C
 C Now restore from existing index file.
 C
-10000	OPEN (UNIT=1,NAME='dindx',STATUS='OLD',
+10000	OPEN (UNIT=1,FILE='dindx',STATUS='OLD', ! maybe action="read"
 	1	FORM='FORMATTED',ACCESS='SEQUENTIAL',ERR=1900)
 	READ(1,130) I,J				! get version.
 	READ(1,125) KEDIT			! get minor edit.
 	IF((I.NE.VMAJ).OR.(J.NE.VMIN))
 	1	GO TO 1925			! match to ours?
 C
-	OPEN (UNIT=DBCH,NAME='dtext',STATUS='OLD',
+	OPEN (UNIT=DBCH,FILE='dtext',STATUS='OLD',
 	1	FORM='UNFORMATTED',ACCESS='DIRECT',
 	2	RECL=RECLNT,ERR=1950)
 C
@@ -245,14 +245,14 @@ C
 125	FORMAT(A)
 130	FORMAT(I8)
 135	FORMAT(L4)
-
+
 C INITFL, PAGE 3
 C
 C The internal data base is now established.
 C Set up to play the game-- INITFL succeeds.
 C
-1025	CALL IDATE(SHOUR,SMIN,SSEC)		! get date (and toss).
-	I=(SHOUR*64)+(SMIN*8)+SSEC		! first seed
+1025	CALL IDATE(STIME)		! get date (and toss).
+	I=(STIME(2)*64)+(STIME(1)*8)+STIME(3)		! first seed
 	CALL ITIME(TMARRAY)			! get time.
 	J=(TMARRAY(1)*64)+(TMARRAY(2)*8)+TMARRAY(3)	! second seed
 	CALL INIRND(I,J)			! init random number gen.
@@ -292,7 +292,7 @@ C
 	7 ' The darkness becomes all encompassing, and your vision fails.')
 C
 	END
-
+
 C PROTCT-- Check for user violation
 C
 C This routine should be modified if you wish to add system

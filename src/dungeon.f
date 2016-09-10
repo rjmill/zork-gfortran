@@ -39,7 +39,7 @@ C
 	7	1,1,1,1,1,1,1,1/
 C
 	DATA XELNT/1,2,3,3/
-
+
 C DUNGEON, PAGE 2
 C
 C 1) Initialize data structures
@@ -92,7 +92,7 @@ C
 	INPCH=5					! tty input
 	OUTCH=6					! tty output.
 	DBCH=2					! data base.
-
+
 C DUNGEON, PAGE 3
 C
 C Init all arrays.
@@ -138,7 +138,7 @@ C
 	  VBEST(I)=0
 	  VMELEE(I)=0
 700	CONTINUE
-
+
 C DUNGEON, PAGE 4
 C
 	DO 800 I=1,OMAX				! clear object arrays.
@@ -192,7 +192,7 @@ C
 	IF(INITFL(X)) CALL GAME			! if init files, play game.
 	CALL EXIT				! done
 	END
-
+
 C TXCRYP - Subroutine to encrypt/decrypt text strings.
 C
 C This subroutine performs a reversible encryption on a text string.
@@ -206,8 +206,8 @@ C
 	CHARACTER*(*) LINE
 C
 	DO 100 I=1,LEN(LINE)
-	  X=(R.AND.31)+I
-	  LINE(I:I)=CHAR(ICHAR(LINE(I:I)).XOR.X)
+	  X=AND(R, 31)+I
+	  LINE(I:I)=CHAR(XOR(ICHAR(LINE(I:I)), X))
 100	CONTINUE
 	RETURN
 	END
