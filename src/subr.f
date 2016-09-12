@@ -37,7 +37,7 @@ C
 	RETURN
 C
 	END
-
+
 C RSPSB2-- Output random message with substitutable arguments
 C
 C Called by--
@@ -77,7 +77,7 @@ C
 	READ(DBCH,REC=X) NEWREC,B1		! read next record.
 	IF(OLDREC.EQ.NEWREC) GO TO 100		! continuation?
 	RETURN					! no, exit.
-
+
 C RSPSB2, PAGE 2
 C
 C Substitution with substitutable available.
@@ -104,7 +104,7 @@ C
 	GO TO 200				! recheck line.
 C
 	END
-
+
 C OBJACT-- Apply objects from parse vector
 C
 C Declarations
@@ -125,7 +125,7 @@ C
 	RETURN
 C
 	END
-
+
 C BUG-- Report fatal system error
 C
 C Declarations
@@ -146,7 +146,7 @@ C
 200	FORMAT(' Game state saved in "CRASH.DAT".')
 C
 	END
-
+
 C NEWSTA-- Set new status for object
 C
 C Called by--
@@ -164,7 +164,7 @@ C
 	RETURN
 C
 	END
-
+
 C QHERE-- Test for object in room
 C
 C Declarations
@@ -182,7 +182,7 @@ C
 	RETURN
 C
 	END
-
+
 C QEMPTY-- Test for object empty
 C
 C Declarations
@@ -199,7 +199,7 @@ C
 	RETURN
 C
 	END
-
+
 C JIGSUP- You are dead
 C
 C Declarations
@@ -235,20 +235,20 @@ C
 	AACTIO(PLAYER)=PLAYER			! turn on dead player func.
 C
 	DO 50 J=1,OLNT				! turn off fighting.
-	  IF(QHERE(J,HERE)) OFLAG2(J)=OFLAG2(J).AND. .NOT.FITEBT
+	  IF(QHERE(J,HERE)) OFLAG2(J)=AND(OFLAG2(J),NOT(FITEBT))
 50	CONTINUE
 C
 	F=MOVETO(LLD1,WINNER)			! reposition him.
 	EGYPTF=.TRUE.				! restore coffin.
 	IF(OADV(COFFI).EQ.WINNER) CALL NEWSTA(COFFI,0,EGYPT,0,0)
-	OFLAG2(DOOR)=OFLAG2(DOOR).AND. .NOT.TCHBT ! restore door.
-	OFLAG1(ROBOT)=(OFLAG1(ROBOT).OR.VISIBT) .AND. .NOT.NDSCBT
+	OFLAG2(DOOR)=AND(OFLAG2(DOOR),NOT(TCHBT)) ! restore door.
+	OFLAG1(ROBOT)=AND(OR(OFLAG1(ROBOT),VISIBT),NOT(NDSCBT))
 	CALL NEWSTA(LAMP,0,LROOM,0,0)		! lamp to living room,
-	OFLAG1(LAMP)=OFLAG1(LAMP).OR.VISIBT	! visible
+	OFLAG1(LAMP)=OR(OFLAG1(LAMP),VISIBT)	! visible
 	DO 100 I=1,CLNT				! disable cevnts if needed.
 	  IF(CCNCEL(I)) CFLAG(I)=.FALSE.
 100	CONTINUE
-
+
 C JIGSUP, PAGE 2
 C
 C Now redistribute his valuables and other belongings.
@@ -273,14 +273,14 @@ C
 	  IF((OADV(J).NE.WINNER).OR.(OTVAL(J).EQ.0))
 	1	GO TO 300			! on adv and valuable?
 250	  I=I+1					! find next room.
-	  IF((RFLAG(I).AND.NONOFL).NE.0) GO TO 250	! skip if nono.
+	  IF(AND(RFLAG(I),NONOFL).NE.0) GO TO 250	! skip if nono.
 	  CALL NEWSTA(J,0,I,0,0)		! yes, move.
 300	CONTINUE
 C
 	DO 500 J=1,OLNT				! now get rid of remainder.
 	  IF(OADV(J).NE.WINNER) GO TO 500
 450	  I=I+1					! find next room.
-	  IF((RFLAG(I).AND.NONOFL).NE.0) GO TO 450	! skip if nono.
+	  IF(AND(RFLAG(I),NONOFL).NE.0) GO TO 450	! skip if nono.
 	  CALL NEWSTA(J,0,I,0,0)
 500	CONTINUE
 	RETURN
@@ -295,7 +295,7 @@ C
 	CALL EXIT
 C
 	END
-
+
 C OACTOR-	Get actor associated with object
 C
 C Declarations
@@ -311,7 +311,7 @@ C
 	RETURN
 C
 	END
-
+
 C PROB-		Compute probability
 C
 C Declarations
@@ -326,7 +326,7 @@ C
 	RETURN
 C
 	END
-
+
 C RMDESC-- Print room description
 C
 C RMDESC prints a description of the current room.
@@ -361,7 +361,7 @@ C
 C
 300	I=RDESC2-HERE				! assume short desc.
 	IF((FULL.EQ.0)
-	1	.AND. (SUPERF.OR.(((RFLAG(HERE).AND.RSEEN).NE.0)
+	1	.AND. (SUPERF.OR.((AND(RFLAG(HERE),RSEEN).NE.0)
 	1	.AND. (BRIEFF.OR.PROB(80,80))))) GO TO 400
 	I=RDESC1(HERE)				! use long.
 	IF((I.NE.0).OR.(RA.EQ.0)) GO TO 400	! if got desc, skip.
@@ -373,7 +373,7 @@ C
 C
 400	CALL RSPEAK(I)				! output description.
 500	IF(AVEHIC(WINNER).NE.0) CALL RSPSUB(431,ODESC2(AVEHIC(WINNER)))
-	RFLAG(HERE)=RFLAG(HERE).OR.RSEEN	! indicate room seen.
+	RFLAG(HERE)=OR(RFLAG(HERE),RSEEN)	! indicate room seen.
 C
 600	IF(LIT(HERE)) GO TO 700			! if lit, do objects
 	CALL RSPEAK(1036)			! can't see anything
@@ -387,7 +387,7 @@ C
 	RETURN
 C
 	END
-
+
 C PRINCR- Print contents of room
 C
 C Declarations
@@ -399,16 +399,16 @@ C
 C
 	J=329					! assume superbrief format.
 	DO 500 I=1,OLNT				! loop on objects
-	  IF(.NOT.QHERE(I,RM).OR.((OFLAG1(I).AND.VISIBT).EQ.0).OR.
-	1	(((OFLAG1(I).AND.NDSCBT).NE.0).AND.(FULL.NE.1)).OR.
+	  IF(.NOT.QHERE(I,RM).OR.(AND(OFLAG1(I),VISIBT).EQ.0).OR.
+	1	((AND(OFLAG1(I),NDSCBT).NE.0).AND.(FULL.NE.1)).OR.
 	2	(I.EQ.AVEHIC(WINNER))) GO TO 500
 	  IF((FULL.EQ.0).AND.(SUPERF.OR.(BRIEFF.AND.
-	1	((RFLAG(HERE).AND.RSEEN).NE.0)))) GO TO 200
+	1	(AND(RFLAG(HERE),RSEEN).NE.0)))) GO TO 200
 C
 C Do long description of object.
 C
 	  K=ODESCO(I)				! get untouched.
-	  IF((K.EQ.0).OR.((OFLAG2(I).AND.TCHBT).NE.0)) K=ODESC1(I)
+	  IF((K.EQ.0).OR.(AND(OFLAG2(I),TCHBT).NE.0)) K=ODESC1(I)
 	  IF((K.EQ.0).AND.(FULL.EQ.1)) CALL RSPSUB(936,ODESC2(I))
 	  CALL RSPEAK(K)			! describe.
 	  GO TO 500
@@ -423,11 +423,11 @@ C
 C Now loop to print contents of objects in room.
 C
 	DO 1000 I=1,OLNT			! loop on objects.
-	  IF(.NOT.QHERE(I,RM).OR.((OFLAG1(I).AND.VISIBT).EQ.0).OR.
-	1	(((OFLAG1(I).AND.NDSCBT).NE.0).AND.(FULL.NE.1)))
+	  IF(.NOT.QHERE(I,RM).OR.(AND(OFLAG1(I),VISIBT).EQ.0).OR.
+	1	((AND(OFLAG1(I),NDSCBT).NE.0).AND.(FULL.NE.1)))
 	2	GO TO 1000
-	  IF((OFLAG2(I).AND.ACTRBT).NE.0) CALL INVENT(OACTOR(I))
-	  IF((((OFLAG1(I).AND.TRANBT).EQ.0).AND.((OFLAG2(I).AND.OPENBT)
+	  IF(AND(OFLAG2(I),ACTRBT).NE.0) CALL INVENT(OACTOR(I))
+	  IF(((AND(OFLAG1(I),TRANBT).EQ.0).AND.(AND(OFLAG2(I),OPENBT)
 	1	.EQ.0)).OR.QEMPTY(I)) GO TO 1000
 C
 C Object is not empty and is open or transparent.
@@ -441,7 +441,7 @@ C
 	RETURN
 C
 	END
-
+
 C INVENT- Print contents of adventurer
 C
 C Declarations
@@ -454,7 +454,7 @@ C
 	I=575					! first line.
 	IF(ADV.NE.PLAYER) I=576			! if not me.
 	DO 10 J=1,OLNT				! loop
-	  IF((OADV(J).NE.ADV).OR.((OFLAG1(J).AND.VISIBT).EQ.0))
+	  IF((OADV(J).NE.ADV).OR.(AND(OFLAG1(J),VISIBT).EQ.0))
 	1	GO TO 10
 	  CALL RSPSUB(I,ODESC2(AOBJ(ADV)))
 	  I=0
@@ -466,15 +466,15 @@ C
 	RETURN
 C
 25	DO 100 J=1,OLNT				! loop.
-	  IF((OADV(J).NE.ADV).OR.((OFLAG1(J).AND.VISIBT).EQ.0).OR.
-	1	(((OFLAG1(J).AND.TRANBT).EQ.0).AND.
-	2	((OFLAG2(J).AND.OPENBT).EQ.0))) GO TO 100
+	  IF((OADV(J).NE.ADV).OR.(AND(OFLAG1(J),VISIBT).EQ.0).OR.
+	1	((AND(OFLAG1(J),TRANBT).EQ.0).AND.
+	2	(AND(OFLAG2(J),OPENBT).EQ.0))) GO TO 100
 	  IF(.NOT.QEMPTY(J)) CALL PRINCO(J,573,.TRUE.) ! if not empty, list.
 100	CONTINUE
 	RETURN
 C
 	END
-
+
 C PRINCO-	Print contents of object
 C
 C Declarations
@@ -486,9 +486,9 @@ C
 C
 C Functions and data
 C
-	QSEEIN(X)=((OFLAG1(X).AND.TRANBT).NE.0).OR.
-	1	  ((OFLAG2(X).AND.OPENBT).NE.0)
-	QUAL(X,Y)=((OFLAG1(X).AND.VISIBT).NE.0).AND.
+	QSEEIN(X)=(AND(OFLAG1(X),TRANBT).NE.0).OR.
+	1	  (AND(OFLAG2(X),OPENBT).NE.0)
+	QUAL(X,Y)=(AND(OFLAG1(X),VISIBT).NE.0).AND.
 	1	   (OCAN(X).EQ.Y).AND.(X.NE.AOBJ(WINNER))
 C
 	MOREF=.FALSE.				! no additional printouts.
@@ -497,7 +497,7 @@ C
 	DO 1000 I=1,OLNT			! loop thru objects.
 	  IF(.NOT.QUAL(I,OBJ)) GO TO 1000	! inside target?
 	  IF((ODESCO(I).EQ.0).OR.
-	1   ((OFLAG2(I).AND.TCHBT).NE.0)) GO TO 700
+	1   (AND(OFLAG2(I),TCHBT).NE.0)) GO TO 700
 	  CALL RSPEAK(ODESCO(I))		! print untouched descr.
 	  ALSO=1				! flag.
 	  IF(.NOT.QSEEIN(I).OR.QEMPTY(I)) GO TO 1000
@@ -514,7 +514,7 @@ C
 	DO 3000 I=1,OLNT			! loop thru objects.
 	  IF(.NOT.QUAL(I,OBJ)) GO TO 3000	! inside target?
 	  IF((ALSO.NE.0).AND.(ODESCO(I).NE.0).AND.
-	1    ((OFLAG2(I).AND.TCHBT).EQ.0)) GO TO 3000
+	1    (AND(OFLAG2(I),TCHBT).EQ.0)) GO TO 3000
 	  IF(.NOT.QSEEIN(I).OR.QEMPTY(I)) GO TO 2700
 	  CALL RSPSUB(1050,ODESC2(I))		! object, which contains:
 	  DO 2500 J=1,OLNT			! loop thru objects.
@@ -526,7 +526,7 @@ C
 	RETURN
 C
 	END
-
+
 C MOVETO- Move player to new room
 C
 C Declarations
@@ -537,8 +537,8 @@ C
 	LOGICAL NLV,LHR,LNR
 C
 	MOVETO=.FALSE.				! assume fails.
-	LHR=(RFLAG(HERE).AND.RLAND).NE.0	! land  here flag.
-	LNR=(RFLAG(NR).AND.RLAND).NE.0		! land there flag.
+	LHR=AND(RFLAG(HERE),RLAND).NE.0	! land  here flag.
+	LNR=AND(RFLAG(NR),RLAND).NE.0		! land there flag.
 	J=AVEHIC(WHO)				! his vehicle
 C
 	IF(J.NE.0) GO TO 100			! in vehicle?
@@ -550,13 +550,13 @@ C
 	IF(J.EQ.RBOAT) BITS=RWATER		! in boat?
 	IF(J.EQ.BALLO) BITS=RAIR		! in balloon?
 	IF(J.EQ.BUCKE) BITS=RBUCK		! in bucket?
-	NLV=(RFLAG(NR).AND.BITS).EQ.0		! got wrong vehicle flag.
+	NLV=AND(RFLAG(NR),BITS).EQ.0		! got wrong vehicle flag.
 	IF((.NOT.LNR .AND.NLV) .OR.
 	1	(LNR.AND.LHR.AND.NLV.AND.(BITS.NE.RLAND)))
 	2	GO TO 800			! got wrong vehicle?
 C
 500	MOVETO=.TRUE.				! move should succeed.
-	IF((RFLAG(NR).AND.RMUNG).EQ.0) GO TO 600 ! room munged?
+	IF(AND(RFLAG(NR),RMUNG).EQ.0) GO TO 600 ! room munged?
 	CALL RSPEAK(RDESC1(NR))			! yes, tell how.
 	RETURN
 C
@@ -572,7 +572,7 @@ C
 	RETURN
 C
 	END
-
+
 C SCORE-- Print out current score
 C
 C Declarations
@@ -623,7 +623,7 @@ C
 150	FORMAT(' Your score in the endgame is',$)
 C
 	END
-
+
 C SCRUPD- Update winner's score
 C
 C Declarations
@@ -644,7 +644,7 @@ C
 	RETURN
 C
 	END
-
+
 C FINDXT- Find exit from room
 C
 C Declarations
@@ -658,22 +658,22 @@ C
 	IF(XI.EQ.0) GO TO 1000			! no exits?
 C
 100	I=TRAVEL(XI)				! get entry.
-	XROOM1=I.AND.XRMASK			! isolate room.
-	XTYPE=(((I.AND..NOT.XLFLAG)/XFSHFT).AND.XFMASK)+1
+	XROOM1=AND(I,XRMASK)			! isolate room.
+	XTYPE=AND((AND(I,NOT(XLFLAG))/XFSHFT),XFMASK)+1
 	GO TO (110,120,130,130),XTYPE		! branch on entry.
 	CALL BUG(10,XTYPE)
 C
-130	XOBJ=TRAVEL(XI+2).AND.XRMASK		! door/cexit- get obj/flag.
+130	XOBJ=AND(TRAVEL(XI+2),XRMASK)		! door/cexit- get obj/flag.
 	XACTIO=TRAVEL(XI+2)/XASHFT
 120	XSTRNG=TRAVEL(XI+1)			! door/cexit/nexit - string.
 110	XI=XI+XELNT(XTYPE)			! advance to next entry.
-	IF((I.AND.XDMASK).EQ.DIR) RETURN	! match?
-	IF((I.AND.XLFLAG).EQ.0) GO TO 100	! last entry?
+	IF(AND(I,XDMASK).EQ.DIR) RETURN	! match?
+	IF(AND(I,XLFLAG).EQ.0) GO TO 100	! last entry?
 1000	FINDXT=.FALSE.				! yes, lose.
 	RETURN
 C
 	END
-
+
 C FWIM- Find what I mean
 C
 C Declarations
@@ -692,10 +692,10 @@ C
 C
 C Object is on list... is it a match?
 C
-	  IF((OFLAG1(I).AND.VISIBT).EQ.0) GO TO 1000
-	  IF((.NOT.NOCARE .AND.((OFLAG1(I).AND.TAKEBT).EQ.0)) .OR.
-	1	(((OFLAG1(I).AND.F1).EQ.0).AND.
-	2	 ((OFLAG2(I).AND.F2).EQ.0))) GO TO 500
+	  IF(AND(OFLAG1(I),VISIBT).EQ.0) GO TO 1000
+	  IF((.NOT.NOCARE .AND.(AND(OFLAG1(I),TAKEBT).EQ.0)) .OR.
+	1	((AND(OFLAG1(I),F1).EQ.0).AND.
+	2	 (AND(OFLAG2(I),F2).EQ.0))) GO TO 500
 	  IF(FWIM.EQ.0) GO TO 400		! already got something?
 	  FWIM=-FWIM				! yes, ambiguous.
 	  RETURN
@@ -704,11 +704,11 @@ C
 C
 C Does object contain a match?
 C
-500	  IF((OFLAG2(I).AND.OPENBT).EQ.0) GO TO 1000 ! closed?
+500	  IF(AND(OFLAG2(I),OPENBT).EQ.0) GO TO 1000 ! closed?
 	  DO 700 J=1,OLNT			! no, search contents.
-	    IF((OCAN(J).NE.I).OR.((OFLAG1(J).AND.VISIBT).EQ.0) .OR.
-	1	(((OFLAG1(J).AND.F1).EQ.0).AND.
-	2	 ((OFLAG2(J).AND.F2).EQ.0))) GO TO 700
+	    IF((OCAN(J).NE.I).OR.(AND(OFLAG1(J),VISIBT).EQ.0) .OR.
+	1	((AND(OFLAG1(J),F1).EQ.0).AND.
+	2	 (AND(OFLAG2(J),F2).EQ.0))) GO TO 700
 	    IF(FWIM.EQ.0) GO TO 600
 	    FWIM=-FWIM
 	    RETURN
@@ -719,7 +719,7 @@ C
 	RETURN
 C
 	END
-
+
 C ORPHAN- Set up orphans for parser
 C
 C Declarations
@@ -740,7 +740,7 @@ C
 	RETURN
 C
 	END
-
+
 C YESNO- Obtain yes/no answer
 C
 C Called by-
@@ -769,7 +769,7 @@ C
 	RETURN
 C
 	END
-
+
 C ROBADV-- Steal winner's valuables
 C
 C Declarations
@@ -781,14 +781,14 @@ C
 	ROBADV=0				! count objects
 	DO 100 I=1,OLNT
 	  IF((OADV(I).NE.ADV).OR.(OTVAL(I).LE.0).OR.
-	1	((OFLAG2(I).AND.SCRDBT).NE.0)) GO TO 100
+	1	(AND(OFLAG2(I),SCRDBT).NE.0)) GO TO 100
 	  CALL NEWSTA(I,0,NR,NC,NA)		! steal object
 	  ROBADV=ROBADV+1
 100	CONTINUE
 	RETURN
 C
 	END
-
+
 C ROBRM-- Steal room valuables
 C
 C Declarations
@@ -801,20 +801,20 @@ C
 	ROBRM=0					! count objects
 	DO 100 I=1,OLNT				! loop on objects.
 	  IF(.NOT. QHERE(I,RM)) GO TO 100
-	  IF((OTVAL(I).LE.0).OR.((OFLAG2(I).AND.SCRDBT).NE.0).OR.
-	1	((OFLAG1(I).AND.VISIBT).EQ.0).OR.(.NOT.PROB(PR,PR)))
+	  IF((OTVAL(I).LE.0).OR.(AND(OFLAG2(I),SCRDBT).NE.0).OR.
+	1	(AND(OFLAG1(I),VISIBT).EQ.0).OR.(.NOT.PROB(PR,PR)))
 	2	GO TO 50
 	  CALL NEWSTA(I,0,NR,NC,NA)
 	  ROBRM=ROBRM+1
-	  OFLAG2(I)=OFLAG2(I).OR.TCHBT
+	  OFLAG2(I)=OR(OFLAG2(I),TCHBT)
 	  GO TO 100
-50	  IF((OFLAG2(I).AND.ACTRBT).NE.0)
+50	  IF(AND(OFLAG2(I),ACTRBT).NE.0)
 	1	ROBRM=ROBRM+ROBADV(OACTOR(I),NR,NC,NA)
 100	CONTINUE
 	RETURN
 C
 	END
-
+
 C WINNIN-- See if villain is winning
 C
 C Declarations
@@ -838,7 +838,7 @@ C
 	RETURN
 C
 	END
-
+
 C FIGHTS-- Compute fight strength
 C
 C Declarations
@@ -855,7 +855,7 @@ C
 	RETURN
 C
 	END
-
+
 C VILSTR-	Compute villain strength
 C
 C Declarations
@@ -877,7 +877,7 @@ C
 	RETURN
 C
 	END
-
+
 C GTTIME-- Get total time played
 C
 C Declarations
@@ -896,7 +896,7 @@ C
 	RETURN
 C
 	END
-
+
 C OPNCLS-- Process open/close for doors
 C
 C Declarations
@@ -908,7 +908,7 @@ C
 C
 C Functions and data
 C
-	QOPEN(O)=(OFLAG2(O).AND.OPENBT).NE.0
+	QOPEN(O)=AND(OFLAG2(O),OPENBT).NE.0
 C
 	OPNCLS=.TRUE.				! assume wins.
 	IF(PRSA.EQ.CLOSEW) GO TO 100		! close?
@@ -918,19 +918,19 @@ C
 C
 50	IF(QOPEN(OBJ)) GO TO 200		! open... is it?
 	CALL RSPEAK(SO)
-	OFLAG2(OBJ)=OFLAG2(OBJ).OR.OPENBT
+	OFLAG2(OBJ)=OR(OFLAG2(OBJ),OPENBT)
 	RETURN
 C
 100	IF(.NOT.QOPEN(OBJ)) GO TO 200		! close... is it?
 	CALL RSPEAK(SC)
-	OFLAG2(OBJ)=OFLAG2(OBJ).AND..NOT.OPENBT
+	OFLAG2(OBJ)=AND(OFLAG2(OBJ),NOT(OPENBT))
 	RETURN
 C
 200	CALL RSPEAK(125+RND(3))			! dummy.
 	RETURN
 C
 	END
-
+
 C LIT-- Is room lit?
 C
 C Declarations
@@ -941,7 +941,7 @@ C
 	LOGICAL QHERE
 C
 	LIT=.TRUE.				! assume wins
-	IF(DEADF.OR.((RFLAG(RM).AND.RLIGHT).NE.0)) RETURN	! room lit?
+	IF(DEADF.OR.(AND(RFLAG(RM),RLIGHT).NE.0)) RETURN	! room lit?
 C
 	DO 1000 I=1,OLNT			! look for lit obj
 	  IF(QHERE(I,RM)) GO TO 100		! in room?
@@ -951,15 +951,15 @@ C
 C
 C Obj in room or on adv in room
 C
-100	  IF((OFLAG1(I).AND.ONBT).NE.0) RETURN	! lit?
-	  IF(((OFLAG1(I).AND.VISIBT).EQ.0).OR.
-	1	(((OFLAG1(I).AND.TRANBT).EQ.0).AND.
-	2	((OFLAG2(I).AND.OPENBT).EQ.0))) GO TO 1000
+100	  IF(AND(OFLAG1(I),ONBT).NE.0) RETURN	! lit?
+	  IF((AND(OFLAG1(I),VISIBT).EQ.0).OR.
+	1	((AND(OFLAG1(I),TRANBT).EQ.0).AND.
+	2	(AND(OFLAG2(I),OPENBT).EQ.0))) GO TO 1000
 C
 C Obj is visible and open or transparent
 C
 	  DO 500 J=1,OLNT
-	    IF((OCAN(J).EQ.I).AND.((OFLAG1(J).AND.ONBT).NE.0))
+	    IF((OCAN(J).EQ.I).AND.(AND(OFLAG1(J),ONBT).NE.0))
 	1	RETURN
 500	  CONTINUE
 1000	CONTINUE
@@ -967,7 +967,7 @@ C
 	RETURN
 C
 	END
-
+
 C WEIGHR- Returns sum of weight of qualifying objects
 C
 C Declarations
@@ -991,7 +991,7 @@ C
 	RETURN
 C
 	END
-
+
 C GHERE--	Is global actually in this room?
 C
 C Declarations
@@ -1040,7 +1040,7 @@ C
 C
 C 6000--	Global water
 C
-6000	GHERE=(RFLAG(RM).AND.(RWATER+RFILL)).NE.0
+6000	GHERE=AND(RFLAG(RM),(RWATER+RFILL)).NE.0
 	RETURN
 C
 C 7000--	Global guardians
@@ -1094,7 +1094,7 @@ C
 	RETURN
 C
 	END
-
+
 C MRHERE--	Is mirror here?
 C
 C Declarations
@@ -1125,7 +1125,7 @@ C
 	RETURN
 C
 	END
-
+
 C ENCRYP--	Encrypt password
 C
 C Declarations
@@ -1152,7 +1152,7 @@ C
 C
 	USUM=MOD(UINWS,8)+(8*MOD(UKEYWS,8))	! compute mask.
 	DO 200 I=1,8
-	  J=(UINW(I).XOR.UKEYW(I).XOR.USUM).AND.31
+	  J=AND((XOR(XOR(UINW(I),UKEYW(I)),USUM)),31)
 	  USUM=MOD(USUM+1,32)
 	  IF(J.GT.26) J=MOD(J,26)
 	  OUTW(I:I)=CHAR(MAX0(1,J)+ICHARA)
@@ -1160,7 +1160,7 @@ C
 	RETURN
 C
 	END
-
+
 C CPGOTO--	Move to next state in puzzle room
 C
 C Declarations
@@ -1169,10 +1169,10 @@ C
 	IMPLICIT INTEGER (A-Z)
 	INCLUDE 'dparam.for'
 C
-	RFLAG(CPUZZ)=RFLAG(CPUZZ).AND..NOT.RSEEN
+	RFLAG(CPUZZ)=AND(RFLAG(CPUZZ),NOT(RSEEN))
 	DO 100 I=1,OLNT				! relocate objects.
 	  IF((OROOM(I).EQ.CPUZZ).AND.
-	1	((OFLAG2(I).AND.(ACTRBT+VILLBT)).EQ.0))
+	1	(AND(OFLAG2(I),(ACTRBT+VILLBT)).EQ.0))
 	2	CALL NEWSTA(I,0,CPHERE*HFACTR,0,0)
 	  IF(OROOM(I).EQ.(ST*HFACTR))
 	1	CALL NEWSTA(I,0,CPUZZ,0,0)
@@ -1181,7 +1181,7 @@ C
 	RETURN
 C
 	END
-
+
 C CPINFO--	Describe puzzle room
 C
 C Declarations
@@ -1225,7 +1225,7 @@ C
 	2'       |',A,1X,A,1X,A,'|')
 C
 	END
-
+
 C NBLEN-	Compute string length without trailing blanks
 C
 C Declarations
@@ -1241,7 +1241,7 @@ C
 	GO TO 100				! and continue.
 C
 	END
-
+
 C
 C RND - Return a random integer mod n
 C
@@ -1261,7 +1261,7 @@ C
 	IMPLICIT INTEGER (A-Z)
 	COMMON /SEED/ RNSEED
 
-	CALL SRAND((ISHFT(HIGH,16)+LOW).OR.1)
+	CALL SRAND(OR((ISHFT(HIGH,16)+LOW),1))
 	RETURN
 
 	END
