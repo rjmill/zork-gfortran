@@ -37,16 +37,16 @@ C
 C
 C Functions and data
 C
-	QOPEN(R)=(OFLAG2(R).AND.OPENBT).NE.0
-	EDIBLE(R)=(OFLAG1(R).AND.FOODBT).NE.0
-	DRKBLE(R)=(OFLAG1(R).AND.DRNKBT).NE.0
+	QOPEN(R)=AND(OFLAG2(R),OPENBT).NE.0
+	EDIBLE(R)=AND(OFLAG1(R),FOODBT).NE.0
+	DRKBLE(R)=AND(OFLAG1(R),DRNKBT).NE.0
 	DATA JOKES/4,5,3,304,305,306,307,308,309,310,311,312,
 	1	313,5314,5319,324,325,883,884,120,120,0,0,0,0/
 	DATA ANSWER/0,1,2,2,3,4,4,4,4,4,5,5,5,6,7,7/
 	DATA ANSSTR/'TEMPLE','FOREST','30003','30,003','FLASK','RUB',
 	1	'FONDLE','CARESS','FEEL','TOUCH','BONES','BODY',
 	2	'SKELETON','RUSTY KNIFE','NONE','NOWHERE'/
-
+
 C VAPPLI, PAGE 2
 C
 	VAPPLI=.TRUE.				! assume wins.
@@ -99,7 +99,7 @@ C Here to test for change in light.
 C
 50	IF(WASLIT.AND..NOT.LIT(HERE)) CALL RSPEAK(406)
 	RETURN
-
+
 C VAPPLI, PAGE 3
 C
 C V100--	Read
@@ -109,12 +109,12 @@ C
 	RETURN
 C
 600	IF(PRSI.EQ.0) GO TO 700			! read through obj?
-	IF((OFLAG1(PRSI).AND.TRANBT).NE.0) GO TO 700
+	IF(AND(OFLAG1(PRSI),TRANBT).NE.0) GO TO 700
 	CALL RSPSUB(357,ODI2)			! not transparent.
 	RETURN
 C
 700	IF(OBJACT(X)) RETURN			! object handle?
-	IF((OFLAG1(PRSO).AND.READBT).NE.0) GO TO 800
+	IF(AND(OFLAG1(PRSO),READBT).NE.0) GO TO 800
 	CALL RSPSUB(358,ODO2)			! not readable.
 	RETURN
 C
@@ -128,7 +128,7 @@ C
 C
 C V102--	Inflate
 C
-2000	IF((OFLAG1(PRSI).AND.TOOLBT).NE.0) GO TO 2100	! tool?
+2000	IF(AND(OFLAG1(PRSI),TOOLBT).NE.0) GO TO 2100	! tool?
 	CALL RSPSUB(301,ODI2)				! no, joke.
 	RETURN
 C
@@ -139,12 +139,12 @@ C V103--	Deflate.
 C
 3000	IF(.NOT.OBJACT(X)) CALL RSPEAK(369)	! obj handle?
 	RETURN
-
+
 C VAPPLI, PAGE 4
 C
 C V104--	Alarm
 C
-4000	IF((OFLAG2(PRSO).AND.VILLBT).NE.0) GO TO 4100	! villain?
+4000	IF(AND(OFLAG2(PRSO),VILLBT).NE.0) GO TO 4100	! villain?
 	CALL RSPEAK(552+RND(6))			! no, joke.
 	RETURN
 C
@@ -186,20 +186,20 @@ C V112--	Push
 C
 12000	IF(.NOT.OBJACT(X)) CALL RSPSB2(382,ODO2,RMK)
 	RETURN
-
+
 C VAPPLI, PAGE 5
 C
 C V113--	Untie
 C
 13000	IF(OBJACT(X)) RETURN			! object handle?
 	I=383					! no, not tied.
-	IF((OFLAG2(PRSO).AND.TIEBT).EQ.0) I=384	! not tieable.
+	IF(AND(OFLAG2(PRSO),TIEBT).EQ.0) I=384	! not tieable.
 	CALL RSPEAK(I)
 	RETURN
 C
 C V114--	Tie
 C
-14000	IF((OFLAG2(PRSO).AND.TIEBT).NE.0) GO TO 14100
+14000	IF(AND(OFLAG2(PRSO),TIEBT).NE.0) GO TO 14100
 	CALL RSPEAK(385)			! not tieable.
 	RETURN
 C
@@ -211,22 +211,22 @@ C
 C
 C V115--	Tie up
 C
-15000	IF((OFLAG2(PRSI).AND.TIEBT).NE.0) GO TO 15100
+15000	IF(AND(OFLAG2(PRSI),TIEBT).NE.0) GO TO 15100
 	CALL RSPSUB(387,ODO2)			! not tieable.
 	RETURN
 C
 15100	I=388					! assume villain.
-	IF((OFLAG2(PRSO).AND.VILLBT).EQ.0) I=389
+	IF(AND(OFLAG2(PRSO),VILLBT).EQ.0) I=389
 	CALL RSPSUB(I,ODO2)			! joke.
 	RETURN
 C
 C V116--	Turn
 C
-16000	IF((OFLAG1(PRSO).AND.TURNBT).NE.0) GO TO 16100
+16000	IF(AND(OFLAG1(PRSO),TURNBT).NE.0) GO TO 16100
 	CALL RSPEAK(390)			! not turnable.
 	RETURN
 C
-16100	IF((OFLAG1(PRSI).AND.TOOLBT).NE.0) GO TO 16200
+16100	IF(AND(OFLAG1(PRSI),TOOLBT).NE.0) GO TO 16200
 	CALL RSPSUB(391,ODI2)			! not a tool.
 	RETURN
 C
@@ -238,14 +238,14 @@ C
 17000	PRSA=INFLAW
 	PRSI=LUNGS
 	GO TO 2000				! handle like inflate.
-
+
 C VAPPLI, PAGE 5A.
 C
 C V118--	Knock
 C
 18000	IF(OBJACT(X)) RETURN			! obj handle?
 	I=394					! joke for door.
-	IF((OFLAG1(PRSO).AND.DOORBT).EQ.0) I=395
+	IF(AND(OFLAG1(PRSO),DOORBT).EQ.0) I=395
 	CALL RSPSUB(I,ODO2)			! joke for nondoors too.
 	RETURN
 C
@@ -272,7 +272,7 @@ C V121--	Shake
 C
 21000	IF(OBJACT(X)) RETURN			! object handle?
 	IF(PRSO.EQ.GWATE) GO TO 10		! global water? fails.
-	IF((OFLAG2(PRSO).AND.VILLBT).EQ.0) GO TO 21100
+	IF(AND(OFLAG2(PRSO),VILLBT).EQ.0) GO TO 21100
 	CALL RSPEAK(371)			! joke for villains.
 	RETURN
 C
@@ -280,7 +280,7 @@ C
 	CALL RSPEAK(672)			! yes, joke.
 	RETURN
 C
-21150	IF((OFLAG1(PRSO).AND.TAKEBT).NE.0) GO TO 21200	! takeable?
+21150	IF(AND(OFLAG1(PRSO),TAKEBT).NE.0) GO TO 21200	! takeable?
 	CALL RSPEAK(923)			! no, joke.
 	RETURN
 C
@@ -296,7 +296,7 @@ C
 21300	CALL RSPSUB(397,ODO2)			! spill the works.
 	DO 21500 I=1,OLNT			! spill contents.
 	  IF(OCAN(I).NE.PRSO) GO TO 21500	! inside?
-	  OFLAG2(I)=OFLAG2(I).OR.TCHBT		! touch object.
+	  OFLAG2(I)=OR(OFLAG2(I),TCHBT)		! touch object.
 	  IF(AV.EQ.0) GO TO 21400		! in vehicle?
 	  CALL NEWSTA(I,0,0,AV,0)		! yes, spill in there.
 	  GO TO 21500
@@ -305,7 +305,7 @@ C
 	  IF(I.EQ.WATER) CALL NEWSTA(I,133,0,0,0)	! but water disappears.
 21500	CONTINUE
 	RETURN
-
+
 C VAPPLI, PAGE 6
 C
 C V122--	Move
@@ -313,7 +313,7 @@ C
 22000	IF(.NOT.QHERE(PRSO,HERE)) GO TO 22100	! is it here?
 	IF(OBJACT(X)) RETURN			! obj handle?
 	I=399					! assume not takeable.
-	IF((OFLAG1(PRSO).AND.TAKEBT).NE.0) I=887
+	IF(AND(OFLAG1(PRSO),TAKEBT).NE.0) I=887
 	CALL RSPSUB(I,ODO2)			! joke.
 	RETURN
 C
@@ -323,40 +323,40 @@ C
 C V123--	Turn on
 C
 23000	IF(OBJACT(X)) RETURN			! object handle?
-	IF(((OFLAG1(PRSO).AND.LITEBT).NE.0).AND.
+	IF((AND(OFLAG1(PRSO),LITEBT).NE.0).AND.
 	1	(OADV(PRSO).EQ.WINNER)) GO TO 23100
 	CALL RSPEAK(400)			! cant do it.
 	RETURN
 C
-23100	IF((OFLAG1(PRSO).AND.ONBT).EQ.0) GO TO 23200
+23100	IF(AND(OFLAG1(PRSO),ONBT).EQ.0) GO TO 23200
 	CALL RSPEAK(401)			! already on.
 	RETURN
 C
-23200	OFLAG1(PRSO)=OFLAG1(PRSO).OR.ONBT	! turn it on.
+23200	OFLAG1(PRSO)=OR(OFLAG1(PRSO),ONBT)	! turn it on.
 	CALL RSPSUB(404,ODO2)
 	RETURN
 C
 C V124--	Turn off
 C
 24000	IF(OBJACT(X)) RETURN			! obj handle?
-	IF(((OFLAG1(PRSO).AND.LITEBT).NE.0).AND.
+	IF((AND(OFLAG1(PRSO),LITEBT).NE.0).AND.
 	1	(OADV(PRSO).EQ.WINNER)) GO TO 24100
 	CALL RSPEAK(402)			! cant do it.
 	RETURN
 C
-24100	IF((OFLAG1(PRSO).AND.ONBT).NE.0) GO TO 24200
+24100	IF(AND(OFLAG1(PRSO),ONBT).NE.0) GO TO 24200
 	CALL RSPEAK(403)			! already off.
 	RETURN
 C
-24200	OFLAG1(PRSO)=OFLAG1(PRSO).AND. .NOT.ONBT
+24200	OFLAG1(PRSO)=AND(OFLAG1(PRSO),NOT(ONBT))
 	CALL RSPSUB(405,ODO2)
 	GO TO 50				! go see if now dark.
 C
 C V125--	Open
 C
 25000	IF(OBJACT(X)) RETURN			! obj handle?
-	IF((OFLAG1(PRSO).AND.DOORBT).NE.0) GO TO 25150	! door?
-	IF((OFLAG1(PRSO).AND.CONTBT).NE.0) GO TO 25100	! container?
+	IF(AND(OFLAG1(PRSO),DOORBT).NE.0) GO TO 25150	! door?
+	IF(AND(OFLAG1(PRSO),CONTBT).NE.0) GO TO 25100	! container?
 25050	CALL RSPSUB(407,ODO2)			! not door or container.
 	RETURN
 C
@@ -368,8 +368,8 @@ C
 	CALL RSPEAK(412)			! already open.
 	RETURN
 C
-25225	OFLAG2(PRSO)=OFLAG2(PRSO).OR.OPENBT	! open it.
-	IF(((OFLAG1(PRSO).AND.TRANBT).NE.0).OR.QEMPTY(PRSO))
+25225	OFLAG2(PRSO)=OR(OFLAG2(PRSO),OPENBT)	! open it.
+	IF((AND(OFLAG1(PRSO),TRANBT).NE.0).OR.QEMPTY(PRSO))
 	1	GO TO 25300
 	CALL PRINCO(PRSO,410,.FALSE.)		! print contents.
 	RETURN
@@ -380,8 +380,8 @@ C
 C V126--	Close
 C
 26000	IF(OBJACT(X)) RETURN			! obj handle?
-	IF((OFLAG1(PRSO).AND.DOORBT).NE.0) GO TO 26050	! door?
-	IF((OFLAG1(PRSO).AND.CONTBT).EQ.0) GO TO 25050	! container?
+	IF(AND(OFLAG1(PRSO),DOORBT).NE.0) GO TO 26050	! door?
+	IF(AND(OFLAG1(PRSO),CONTBT).EQ.0) GO TO 25050	! container?
 	IF(OCAPAC(PRSO).NE.0) GO TO 26100	! closable container?
 26050	CALL RSPSUB(411,ODO2)			! door or not closable.
 	RETURN
@@ -390,10 +390,10 @@ C
 	CALL RSPEAK(413)			! no, joke.
 	RETURN
 C
-26200	OFLAG2(PRSO)=OFLAG2(PRSO).AND. .NOT.OPENBT
+26200	OFLAG2(PRSO)=AND(OFLAG2(PRSO),NOT(OPENBT))
 	CALL RSPEAK(414)			! done.
 	GO TO 50				! go see if now dark.
-
+
 C VAPPLI, PAGE 7
 C
 C V127--	Find
@@ -405,8 +405,8 @@ C
 	IF(OADV(PRSO).EQ.WINNER) GO TO 27200	! on winner?
 	J=OCAN(PRSO)				! down one level.
 	IF(J.EQ.0) GO TO 10
-	IF((((OFLAG1(J).AND.TRANBT).EQ.0).AND.
-	2 (.NOT.QOPEN(J).OR.((OFLAG1(J).AND.(DOORBT+CONTBT)).EQ.0))))
+	IF(((AND(OFLAG1(J),TRANBT).EQ.0).AND.
+	2 (.NOT.QOPEN(J).OR.(AND(OFLAG1(J),(DOORBT+CONTBT)).EQ.0))))
 	3	GO TO 10			! if not visible, punt.
 	I=417					! assume in room.
 	IF(QHERE(J,HERE)) GO TO 27100
@@ -433,7 +433,7 @@ C V159--	Turn to
 C
 29000	CONTINUE
 59000	IF(OBJACT(X)) RETURN			! object handle?
-	IF((OFLAG1(PRSO).AND.TURNBT).NE.0) GO TO 59100
+	IF(AND(OFLAG1(PRSO),TURNBT).NE.0) GO TO 59100
 	CALL RSPEAK(390)			! can't turn?
 	RETURN
 C
@@ -442,7 +442,7 @@ C
 C
 C V130--	Board
 C
-30000	IF((OFLAG2(PRSO).AND.VEHBT).NE.0) GO TO 30100
+30000	IF(AND(OFLAG2(PRSO),VEHBT).NE.0) GO TO 30100
 	CALL RSPSUB(421,ODO2)			! not vehicle, joke.
 	PRSCON=0				! kill cmd stream.
 	RETURN
@@ -471,7 +471,7 @@ C
 	RETURN
 C
 31100	IF(OBJACT(X)) RETURN			! obj handle?
-	IF((RFLAG(HERE).AND.RLAND).NE.0) GO TO 31200
+	IF(AND(RFLAG(HERE),RLAND).NE.0) GO TO 31200
 	CALL RSPEAK(425)			! not on land.
 	PRSCON=0				! kill cmd stream.
 	RETURN
@@ -490,13 +490,13 @@ C V133--	Inventory
 C
 33000	CALL INVENT(WINNER)
 	RETURN
-
+
 C VAPPLI, PAGE 8
 C
 C V134--	Fill
 C
 34000	IF(PRSI.NE.0) GO TO 34050		! any obj specified?
-	IF((RFLAG(HERE).AND.(RWATER+RFILL)).NE.0) GO TO 34025
+	IF(AND(RFLAG(HERE),(RWATER+RFILL)).NE.0) GO TO 34025
 	CALL RSPEAK(516)			! nothing to fill with.
 	PRSWON=.FALSE.				! you lose.
 	CALL ORPHAN(-1,ACT,PREP1,PRSO,2,' ',0,0)! orphan "fill obj with"
@@ -542,10 +542,10 @@ C
 C
 C V137--	Burn
 C
-37000	IF((OFLAG1(PRSI).AND.(FLAMBT+LITEBT+ONBT)).NE.
+37000	IF(AND(OFLAG1(PRSI),(FLAMBT+LITEBT+ONBT)).NE.
 	1	(FLAMBT+LITEBT+ONBT)) GO TO 37600	! with flame?
 	IF(OBJACT(X)) RETURN			! obj handle?
-	IF((OFLAG1(PRSO).AND.BURNBT).EQ.0) GO TO 37500	! burnable?
+	IF(AND(OFLAG1(PRSO),BURNBT).EQ.0) GO TO 37500	! burnable?
 	IF(OADV(PRSO).EQ.WINNER) GO TO 37400	! carrying it?
 	IF(QHERE(PRSO,HERE)) GO TO 37200	! here?
 	J=OCAN(PRSO)				! get container.
@@ -573,13 +573,13 @@ C
 C
 37600	CALL RSPSUB(301,ODI2)			! cant burn it with that.
 	RETURN
-
+
 C VAPPLI, PAGE 9
 C
 C V138--	Mung
 C
 38000	I=466					! choose phrase.
-	IF((OFLAG2(PRSO).AND.VILLBT).NE.0) GO TO 41100
+	IF(AND(OFLAG2(PRSO),VILLBT).NE.0) GO TO 41100
 	IF(.NOT.OBJACT(X)) CALL RSPSB2(466,ODO2,RMK)
 	RETURN
 C
@@ -609,14 +609,14 @@ C
 	RETURN
 C
 41200	IF(OBJACT(X)) RETURN			! obj handle?
-	IF((OFLAG2(PRSO).AND.VILLBT).NE.0) GO TO 41300
-	IF((OFLAG1(PRSO).AND.VICTBT).EQ.0)
+	IF(AND(OFLAG2(PRSO),VILLBT).NE.0) GO TO 41300
+	IF(AND(OFLAG1(PRSO),VICTBT).EQ.0)
 	1	CALL RSPSUB(470,ODO2)		! not a villain.
 	RETURN
 C
 41300	J=471					! assume no weapon.
 	IF(PRSI.EQ.0) GO TO 41500
-	IF((OFLAG2(PRSI).AND.WEAPBT).EQ.0) GO TO 41400
+	IF(AND(OFLAG2(PRSI),WEAPBT).EQ.0) GO TO 41400
 	MELEE=1					! assume sword.
 	IF(PRSI.NE.SWORD) MELEE=2		! must be knife.
 	I=BLOW(PLAYER,PRSO,MELEE,.TRUE.,0)	! strike blow.
@@ -625,7 +625,7 @@ C
 41400	J=472					! not a weapon.
 41500	CALL RSPSB2(I,ODO2,J)			! joke.
 	RETURN
-
+
 C VAPPLI, PAGE 10
 C
 C V142--	Walk
@@ -676,7 +676,7 @@ C
 C
 C V149--	Save
 C
-49000	IF((RFLAG(TSTRS).AND.RSEEN).EQ.0) GO TO 49100
+49000	IF(AND(RFLAG(TSTRS),RSEEN).EQ.0) GO TO 49100
 	CALL RSPEAK(828)			! no saves in endgame.
 	RETURN
 C
@@ -687,7 +687,7 @@ C
 C
 C V150--	Restore
 C
-50000	IF((RFLAG(TSTRS).AND.RSEEN).EQ.0) GO TO 50100
+50000	IF(AND(RFLAG(TSTRS),RSEEN).EQ.0) GO TO 50100
 	CALL RSPEAK(829)			! no restores in endgame.
 	RETURN
 C
@@ -695,7 +695,7 @@ C
 	PRSWON=.FALSE.				! disable rest of move.
 	PRSCON=0
 	RETURN
-
+
 C VAPPLI, PAGE 11
 C
 C V151--	Hello
@@ -718,14 +718,14 @@ C
 C
 51300	IF(OBJACT(X)) RETURN			! obj handle?
 	I=354					! assume villain.
-	IF((OFLAG2(PRSO).AND.(VILLBT+ACTRBT)).EQ.0) I=355
+	IF(AND(OFLAG2(PRSO),(VILLBT+ACTRBT)).EQ.0) I=355
 	CALL RSPSUB(I,ODO2)			! hello there!
 	RETURN
 C
 C V152--	Look into
 C
 52000	IF(OBJACT(X)) RETURN			! obj handle?
-	IF((OFLAG1(PRSO).AND.DOORBT).EQ.0) GO TO 52300	! door?
+	IF(AND(OFLAG1(PRSO),DOORBT).EQ.0) GO TO 52300	! door?
 	IF(.NOT.QOPEN(PRSO)) GO TO 52200	! open?
 	CALL RSPSUB(628,ODO2)			! open door- uninteresting.
 	RETURN
@@ -733,7 +733,7 @@ C
 52200	CALL RSPSUB(525,ODO2)			! closed door- cant see.
 	RETURN
 C
-52300	IF((OFLAG1(PRSO).AND.CONTBT).NE.0) GO TO 52500	! container?
+52300	IF(AND(OFLAG1(PRSO),CONTBT).NE.0) GO TO 52500	! container?
 	IF(QOPEN(PRSO)) GO TO 52400		! open anyway?
 	CALL RSPSUB(630,ODO2)			! cant look inside.
 	RETURN
@@ -742,7 +742,7 @@ C
 	CALL RSPSUB(1054,ODO2)			! doesn't contain anything.
 	RETURN
 C
-52500	IF(QOPEN(PRSO).OR.((OFLAG1(PRSO).AND.TRANBT).NE.0))
+52500	IF(QOPEN(PRSO).OR.(AND(OFLAG1(PRSO),TRANBT).NE.0))
 	1	GO TO 52600			! open or see inside?
 	CALL RSPSUB(525,ODO2)			! closed.
 	RETURN
@@ -753,7 +753,7 @@ C
 C
 52800	CALL RSPSUB(629,ODO2)			! empty.
 	RETURN
-
+
 C VAPPLI, PAGE 12
 C
 C V153--	Look under
@@ -786,7 +786,7 @@ C
 58000	IF(OBJACT(X)) RETURN			! object handle?
 	I=XUP					! assume up.
 	IF(PRSA.EQ.CLMBDW) I=XDOWN		! unless climb dn.
-	F=(OFLAG2(PRSO).AND.CLMBBT).NE.0
+	F=AND(OFLAG2(PRSO),CLMBBT).NE.0
 	IF(F.AND.FINDXT(I,HERE)) GO TO 58500	! anything to climb?
 	I=657
 	IF(F) I=524				! variety of jokes.
@@ -799,7 +799,7 @@ C
 58500	PRSA=WALKW				! walk
 	PRSO=I					! in specified dir.
 	GO TO 42000				! treat as walk.
-
+
 C VAPPLI, PAGE 13
 C
 C V160--	Pour on
@@ -811,13 +811,13 @@ C
 	CALL RSPSUB(977,ODI2)			! doesn't work.
 	RETURN
 C
-60100	IF((OFLAG1(PRSI).AND.(LITEBT+FLAMBT+ONBT)).NE.
+60100	IF(AND(OFLAG1(PRSI),(LITEBT+FLAMBT+ONBT)).NE.
 	1	(LITEBT+FLAMBT+ONBT)) GO TO 60300	! on flame?
 	IF(PRSI.NE.TORCH) GO TO 60200		! on torch?
 	CALL RSPEAK(978)			! doesn't work.
 	RETURN
 C
-60200	OFLAG1(PRSI)=OFLAG1(PRSI).AND..NOT.ONBT	! extinguish.
+60200	OFLAG1(PRSI)=AND(OFLAG1(PRSI),NOT(ONBT))	! extinguish.
 	CALL RSPSUB(979,ODI2)			! describe.
 	IF(PRSI.EQ.CANDL) CFLAG(CEVCND)=.FALSE.	! if candle, disable timer.
 	IF(PRSI.EQ.MATCH) CTICK(CEVMAT)=0	! if match, gone.
@@ -833,7 +833,7 @@ C V161--	Put under
 C
 61000	IF(OBJACT(X)) RETURN			! object handle.
 	I=1037					! can't do.
-	IF((OFLAG1(PRSO).AND.DOORBT).NE.0) I=982	! if door, won't fit.
+	IF(AND(OFLAG1(PRSO),DOORBT).NE.0) I=982	! if door, won't fit.
 	CALL RSPEAK(I)
 	RETURN
 C
@@ -848,7 +848,7 @@ C
 C
 62100	PRSA=UNTIEW				! treat as normal untie.
 	GO TO 13000
-
+
 C VAPPLI, PAGE 14
 C
 C V163--	Make
@@ -881,7 +881,7 @@ C V165--	Play
 C
 65000	IF(PRSO.NE.STRAD) GO TO 65200		! play violin?
 	IF(PRSI.EQ.0) GO TO 65100		! with anything?
-	IF((OFLAG2(PRSI).AND.WEAPBT).EQ.0) GO TO 65100
+	IF(AND(OFLAG2(PRSI),WEAPBT).EQ.0) GO TO 65100
 	OTVAL(STRAD)=0				! with weapon, ruined.
 	CALL RSPEAK(933)
 	RETURN
@@ -889,7 +889,7 @@ C
 65100	CALL RSPEAK(934)			! offensive noise.
 	RETURN
 C
-65200	IF((OFLAG2(PRSO).AND.VILLBT).EQ.0) GO TO 10	! play villain?
+65200	IF(AND(OFLAG2(PRSO),VILLBT).EQ.0) GO TO 10	! play villain?
 	CALL RSPSUB(935,ODO2)			! you're dead.
 	CALL JIGSUP(0)
 	RETURN
@@ -898,10 +898,10 @@ C V166--	Send
 C
 66000	IF(OBJACT(X)) RETURN			! object handle?
 	I=940					! can't do it.
-	IF((OFLAG2(PRSO).AND.VILLBT).NE.0) I=941 ! why do it?
+	IF(AND(OFLAG2(PRSO),VILLBT).NE.0) I=941 ! why do it?
 	CALL RSPSUB(I,ODO2)
 	RETURN
-
+
 C VAPPLI, PAGE 15
 C
 C V167--	Enter
@@ -936,7 +936,7 @@ C V68--	Squeeze
 C
 68001	IF(OBJACT(X)) RETURN			! object handle?
 	I=901					! can't.
-	IF((OFLAG2(PRSO).AND.VILLBT).NE.0) I=902 ! don't understand.
+	IF(AND(OFLAG2(PRSO),VILLBT).NE.0) I=902 ! don't understand.
 	CALL RSPSUB(I,ODO2)
 	RETURN
 C
@@ -944,7 +944,7 @@ C V69--	Smell
 C
 69001	CALL RSPSUB(903,ODO2)			! joke.
 	RETURN
-
+
 C VAPPLI, PAGE 16
 C
 C V70--	Brief
@@ -987,7 +987,7 @@ C
 C V75--	Swim
 C
 75000	I=330					! assume water.
-	IF((RFLAG(HERE).AND.(RWATER+RFILL)).EQ.0)
+	IF(AND(RFLAG(HERE),(RWATER+RFILL)).EQ.0)
 	1	I=331+RND(3)			! if no water, joke.
 	CALL RSPEAK(I)
 	RETURN
@@ -1010,7 +1010,7 @@ C
 77100	CALL NEWSTA(CYCLO,337,0,0,0)		! cyclops flees.
 	CYCLOF=.TRUE.				! set all flags.
 	MAGICF=.TRUE.
-	OFLAG2(CYCLO)=OFLAG2(CYCLO).AND. .NOT.FITEBT
+	OFLAG2(CYCLO)=AND(OFLAG2(CYCLO),NOT(FITEBT))
 	RETURN
 C
 C V78--	unused
@@ -1058,7 +1058,7 @@ C
 84000	CALL SCORE(.TRUE.)			! tell score.
 	IF(.NOT.YESNO(343,10,0)) RETURN		! ask for y/n decision.
 	CALL EXIT				! bye.
-
+
 C VAPPLI, PAGE 17
 C
 C V85--	Follow (used in endgame)
@@ -1072,7 +1072,7 @@ C
 85100	I=10					! assume ok.
 	IF(PRSO.EQ.0) GO TO 85200		! any object?
 	I=964					! joke 1
-	IF((OFLAG2(PRSO).AND.VILLBT).NE.0) I=965 ! joke 2.
+	IF(AND(OFLAG2(PRSO),VILLBT).NE.0) I=965 ! joke 2.
 85200	CALL RSPEAK(I)
 	RETURN
 C
@@ -1096,7 +1096,7 @@ C
 	1	GO TO 86500			! in specified room?
 86200	CONTINUE
 C
-86300	IF((OFLAG1(PRSO).AND.TAKEBT).NE.0) GO TO 86400	! tkble?
+86300	IF(AND(OFLAG1(PRSO),TAKEBT).NE.0) GO TO 86400	! tkble?
 	I=669					! no, joke.
 	IF(PRSO.EQ.SCOL) I=670			! special joke for scol.
 	CALL RSPSUB(I,ODO2)
@@ -1142,7 +1142,7 @@ C
 C
 88300	CALL JIGSUP(365)			! yes, dead!!!!!
 	RETURN
-
+
 C VAPPLI, PAGE 18
 C
 C V89--	Dig
@@ -1152,7 +1152,7 @@ C
 	RETURN
 C
 89100	I=392					! assume tool.
-	IF((OFLAG1(PRSI).AND.TOOLBT).EQ.0) I=393
+	IF(AND(OFLAG1(PRSI),TOOLBT).EQ.0) I=393
 	CALL RSPSUB(I,ODI2)
 	RETURN
 C
@@ -1184,7 +1184,7 @@ C
 	CALL RSPEAK(447)			! no, joke.
 	RETURN
 C
-91100	IF((OFLAG2(PRSO).AND.VILLBT).EQ.0) GO TO 91300
+91100	IF(AND(OFLAG2(PRSO),VILLBT).EQ.0) GO TO 91300
 	CALL RSPSUB(448,ODO2)			! cant jump villain.
 	RETURN
 C
@@ -1201,7 +1201,7 @@ C
 C
 91500	CALL JIGSUP(449+RND(4))			! fatal leap.
 	RETURN
-
+
 C VAPPLI, PAGE 19
 C
 C V92--	Lock
@@ -1245,13 +1245,13 @@ C
 	CALL RSPEAK(478+K)			! how much more?
 	IF(DEATHS.NE.0) CALL RSPEAK(482+DEATHS)	! how many deaths?
 	RETURN
-
+
 C VAPPLI, PAGE 20
 C
 C V95--	Incant
 C
 95000	IF(WINNER.NE.PLAYER) GO TO 10		! must do yourself.
-	IF((RFLAG(MREYE).AND.RSEEN).NE.0) GO TO 95800	! too late?
+	IF(AND(RFLAG(MREYE),RSEEN).NE.0) GO TO 95800	! too late?
 	IF(SUBLNT.EQ.0) GO TO 95350		! any input?
 	PW(1)=' '				! set up parse.
 	PW(2)=' '
@@ -1276,7 +1276,7 @@ C
 	IF(PW(2).NE.' ') GO TO 95600		! two phrases?
 C
 	IF(SPELLF) GO TO 95550			! he's trying to learn.
-	IF((RFLAG(TSTRS).AND.RSEEN).EQ.0) GO TO 95575	! really in end game?
+	IF(AND(RFLAG(TSTRS),RSEEN).EQ.0) GO TO 95575	! really in end game?
 	SPELLF=.TRUE.				! tell him.
 	TELFLG=.TRUE.
 	WRITE(OUTCH,95510) PW(1)(1:NBLEN(PW(1))),CH
@@ -1303,7 +1303,7 @@ C
 C
 95900	CALL RSPEAK(1052)			! got it wrong.
 	GO TO 95375
-
+
 C VAPPLI, PAGE 21
 C
 C V96--	Answer
@@ -1350,14 +1350,14 @@ C
 C
 96600	CALL RSPEAK(827)			! quiz over,
 	CFLAG(CEVINQ)=.FALSE.
-	OFLAG2(QDOOR)=OFLAG2(QDOOR).OR.OPENBT	! open door.
+	OFLAG2(QDOOR)=OR(OFLAG2(QDOOR),OPENBT)	! open door.
 	RETURN
 C
 96700	IF(SUBBUF.NE.'WELL') GO TO 96050	! right answer?
 	RIDDLF=.TRUE.				! solved riddle.
 	CALL RSPEAK(338)
 	RETURN
-
+
 C V97-- Count (valuables, possessions in VALUAC)
 C
 97000	IF(PRSO.NE.MATCH) GO TO 97100		! matches?
@@ -1379,7 +1379,7 @@ C
 	RETURN
 C
 	END
-
+
 C TAKE-- Basic take sequence
 C
 C Take an object (for verbs take, put, drop, read, etc.)
@@ -1391,11 +1391,11 @@ C
 	IMPLICIT INTEGER (A-Z)
 	LOGICAL FLG,OBJACT,OAPPLI,QHERE
 	INCLUDE 'dparam.for'
-
+
 C TAKE, PAGE 2
 C
 	IF((PRSO.LE.STRBIT).AND.
-	1 ((OFLAG2(PRSO).AND.NOCHBT).EQ.0)) GO TO 100	! star or nocheck?
+	1 (AND(OFLAG2(PRSO),NOCHBT).EQ.0)) GO TO 100	! star or nocheck?
 	TAKE=OBJACT(X)				! yes, let it handle.
 	RETURN
 C
@@ -1409,7 +1409,7 @@ C
 	CALL RSPEAK(672)			! dummy.
 	RETURN
 C
-400	IF((OFLAG1(PRSO).AND.TAKEBT).NE.0) GO TO 500 ! takeable?
+400	IF(AND(OFLAG1(PRSO),TAKEBT).NE.0) GO TO 500 ! takeable?
 	IF(.NOT.OAPPLI(OACTIO(PRSO),0)) CALL RSPEAK(552+RND(6))
 	RETURN
 C
@@ -1434,14 +1434,14 @@ C
 700	TAKE=.TRUE.				! at last.
 	IF(OAPPLI(OACTIO(PRSO),0)) RETURN	! did it handle?
 	CALL NEWSTA(PRSO,0,0,0,WINNER)		! take object for winner.
-	OFLAG2(PRSO)=OFLAG2(PRSO).OR.TCHBT	! has been touched.
+	OFLAG2(PRSO)=OR(OFLAG2(PRSO),TCHBT)	! has been touched.
 	CALL SCRUPD(OFVAL(PRSO))		! update score.
 	OFVAL(PRSO)=0				! cant be scored again.
 	IF(FLG) CALL RSPEAK(559)		! tell taken.
 	RETURN
 C
 	END
-
+
 C DROP- Drop verb processor (also throw, pour water)
 C
 C Declarations
@@ -1451,7 +1451,7 @@ C
 	INCLUDE 'dparam.for'
 	LOGICAL F,PUT,OBJACT,FLG
 C
-	IF((OFLAG2(PRSO).AND.NOCHBT).EQ.0) GO TO 100
+	IF(AND(OFLAG2(PRSO),NOCHBT).EQ.0) GO TO 100
 	DROP=OBJACT(X)				! no check, let obj handle.
 	RETURN
 C
@@ -1459,7 +1459,7 @@ C
 	X=OCAN(PRSO)				! get container.
 	IF(X.EQ.0) GO TO 200			! is it inside?
 	IF(OADV(X).NE.WINNER) GO TO 1000	! is he carrying con?
-	IF((OFLAG2(X).AND.OPENBT).NE.0) GO TO 300 ! is it open?
+	IF(AND(OFLAG2(X),OPENBT).NE.0) GO TO 300 ! is it open?
 	CALL RSPSUB(525,ODESC2(X))		! cant reach.
 	RETURN
 C
@@ -1473,7 +1473,7 @@ C
 400	CALL NEWSTA(PRSO,0,HERE,0,0)		! drop into room.
 	CALL SCRUPD(OFVAL(PRSO))		! score object.
 	OFVAL(PRSO)=0				! cant be scored again.
-	OFLAG2(PRSO)=OFLAG2(PRSO).OR.TCHBT	! has been touched.
+	OFLAG2(PRSO)=OR(OFLAG2(PRSO),TCHBT)	! has been touched.
 C
 	IF(OBJACT(X)) RETURN			! did it handle?
 	IF(PRSA.EQ.DROPW) CALL RSPEAK(528)
@@ -1486,7 +1486,7 @@ C
 	RETURN
 C
 	END
-
+
 C PUT- Put verb processor
 C
 C Declarations
@@ -1498,11 +1498,11 @@ C
 C
 C Functions and data
 C
-	QOPEN(R)=(OFLAG2(R).AND.OPENBT).NE.0
-
+	QOPEN(R)=AND(OFLAG2(R),OPENBT).NE.0
+
 C PUT, PAGE 2
 C
-	IF((OFLAG2(PRSO).AND.NOCHBT).EQ.0) GO TO 100
+	IF(AND(OFLAG2(PRSO),NOCHBT).EQ.0) GO TO 100
 	PUT=OBJACT(X)				! no check, let obj handle.
 	RETURN
 C
@@ -1512,8 +1512,8 @@ C
 	PUT=.TRUE.
 	RETURN
 C
-200	IF(QOPEN(PRSI).OR.((OFLAG1(PRSI).AND.(DOORBT+CONTBT)).NE.0)
-	1	.OR.((OFLAG2(PRSI).AND.VEHBT).NE.0)) GO TO 300
+200	IF(QOPEN(PRSI).OR.(AND(OFLAG1(PRSI),(DOORBT+CONTBT)).NE.0)
+	1	.OR.(AND(OFLAG2(PRSI),VEHBT).NE.0)) GO TO 300
 	CALL RSPEAK(561)			! cant put in that.
 	RETURN
 C
@@ -1567,7 +1567,7 @@ C
 C
 900	CALL SCRUPD(OFVAL(PRSO))		! score object.
 	OFVAL(PRSO)=0
-	OFLAG2(PRSO)=OFLAG2(PRSO).OR.TCHBT	! has been touched.
+	OFLAG2(PRSO)=OR(OFLAG2(PRSO),TCHBT)	! has been touched.
 	CALL NEWSTA(PRSO,0,0,0,WINNER)		! temporarily on winner.
 C
 1000	IF(OBJACT(X)) RETURN			! no, give object a shot.
@@ -1576,7 +1576,7 @@ C
 	RETURN
 C
 	END
-
+
 C VALUAC- Handles valuables/everything/possessions/bunch object
 C	  for take, put, drop, count
 C
@@ -1597,7 +1597,7 @@ C
 
 	NOHERE(R)=((AV.EQ.0).AND..NOT.QHERE(R,HERE)) .OR.
 	1	  ((AV.NE.0).AND.(OCAN(R).NE.AV))
-
+
 C VALUAC, PAGE 2
 C Count
 C
@@ -1631,7 +1631,7 @@ C
 180	FORMAT(' Your adventure has netted ',I1,' treasure.')
 190	FORMAT(' Your adventure has netted ',I2,' treasures.')
 	RETURN
-
+
 C VALUAC, PAGE 3
 C Take
 C
@@ -1654,15 +1654,15 @@ C
 	GO TO 4000				! go clean up.
 C
 400	DO 500 PRSO=1,OLNT			! loop thru objects.
-	  IF((((OFLAG1(PRSO).AND.TAKEBT).EQ.0).AND.
-	1	((OFLAG2(PRSO).AND.TRYBT).EQ.0)).OR.
-	2	((OFLAG1(PRSO).AND.VISIBT).EQ.0).OR.
-	3	((OFLAG2(PRSO).AND.ACTRBT).NE.0).OR.
+	  IF(((AND(OFLAG1(PRSO),TAKEBT).EQ.0).AND.
+	1	(AND(OFLAG2(PRSO),TRYBT).EQ.0)).OR.
+	2	(AND(OFLAG1(PRSO),VISIBT).EQ.0).OR.
+	3	(AND(OFLAG2(PRSO),ACTRBT).NE.0).OR.
 	4	NOTHIS(PRSO)) GO TO 500
 	  IF(.NOT.NOHERE(PRSO)) GO TO 450	! is it here?
 	  J=OCAN(PRSO)				! get container.
 	  IF((J.EQ.0).OR.(PRSO.EQ.WATER)) GO TO 500	! in a cont?
-	  IF(((OFLAG2(J).AND.OPENBT).EQ.0).OR.
+	  IF((AND(OFLAG2(J),OPENBT).EQ.0).OR.
 	1	(NOHERE(J).AND.(OADV(J).NE.WINNER)))
 	2	GO TO 500			! in open cont here?
 C
@@ -1672,7 +1672,7 @@ C
 	  IF(SAVEH.NE.HERE) GO TO 4500
 500	CONTINUE
 	GO TO 4000				! go clean up.
-
+
 C VALUAC, PAGE 4
 C Drop
 C
@@ -1696,7 +1696,7 @@ C
 	  IF(SAVEH.NE.HERE) GO TO 4500
 1500	CONTINUE
 	GO TO 4000				! go clean up.
-
+
 C VALUAC, PAGE 5
 C Put
 C
@@ -1715,10 +1715,10 @@ C
 2400	DO 2500 PRSO=1,OLNT			! loop thru objects.
 	  IF(((OADV(PRSO).NE.WINNER).AND.
 	1	(NOHERE(PRSO).OR.
-	2	(((OFLAG1(PRSO).AND.TAKEBT).EQ.0).AND.
-	3	 ((OFLAG2(PRSO).AND.TRYBT).EQ.0)))) .OR.
+	2	((AND(OFLAG1(PRSO),TAKEBT).EQ.0).AND.
+	3	 (AND(OFLAG2(PRSO),TRYBT).EQ.0)))) .OR.
 	4	(PRSO.EQ.PRSI).OR.NOTHIS(PRSO).OR.
-	5	((OFLAG1(PRSO).AND.VISIBT).EQ.0)) GO TO 2500
+	5	(AND(OFLAG1(PRSO),VISIBT).EQ.0)) GO TO 2500
 	  F=.FALSE.
 	  CALL RSPSUB(580,ODESC2(PRSO))
 	  F1=PUT(.TRUE.)
@@ -1740,7 +1740,7 @@ C
 	BUNSUB=0				! cancel EXCEPT/BUT.
 	RETURN
 	END
-
+
 C QBUNCH-	Is object in bunch vector?
 C
 C Declarations
@@ -1758,7 +1758,7 @@ C
 	RETURN
 C
 	END
-
+
 C SAVE- Save game state
 C
 C Declarations
@@ -1768,7 +1768,7 @@ C
 	INCLUDE 'dparam.for'
 C
 	IF(SUBLNT.EQ.0) SUBBUF='DSAVE.DAT'
-	OPEN (UNIT=1,NAME=SUBBUF,ACCESS='SEQUENTIAL',
+	OPEN (UNIT=1,FILE=SUBBUF,ACCESS='SEQUENTIAL',
 	1	STATUS='UNKNOWN',FORM='UNFORMATTED',ERR=100)
 C
 	CALL GTTIME(I)				! get time.
@@ -1790,7 +1790,7 @@ C
 100	CALL RSPEAK(598)			! cant do it.
 	RETURN
 	END
-
+
 C RESTORE- Restore game state
 C
 C Declarations
@@ -1800,7 +1800,7 @@ C
 	INCLUDE 'dparam.for'
 C
 	IF(SUBLNT.EQ.0) SUBBUF='DSAVE.DAT'
-	OPEN (UNIT=1,NAME=SUBBUF,ACCESS='SEQUENTIAL',
+	OPEN (UNIT=1,FILE=SUBBUF,ACCESS='SEQUENTIAL',
 	1	STATUS='OLD',FORM='UNFORMATTED',ERR=100)
 C
 	READ(1) I,J
@@ -1827,7 +1827,7 @@ C
 	CLOSE (UNIT=1)
 	RETURN
 	END
-
+
 C WALK- Move in specified direction
 C
 C Declarations
@@ -1839,8 +1839,8 @@ C
 C
 C Functions and data
 C
-	QOPEN(O)=(OFLAG2(O).AND.OPENBT).NE.0
-
+	QOPEN(O)=AND(OFLAG2(O),OPENBT).NE.0
+
 C WALK, PAGE 2
 C
 	WALK=.TRUE.				! assume wins.
@@ -1870,7 +1870,7 @@ C
 525	XSTRNG=678				! assume wall.
 	IF(PRSO.EQ.XUP) XSTRNG=679		! if up, cant.
 	IF(PRSO.EQ.XDOWN) XSTRNG=680		! if down, cant.
-	IF(((RFLAG(HERE).AND.RNWALL).NE.0).AND.(WINNER.EQ.PLAYER))
+	IF((AND(RFLAG(HERE),RNWALL).NE.0).AND.(WINNER.EQ.PLAYER))
 	1	XSTRNG=524			! no wall for player.
 	CALL RSPEAK(XSTRNG)
 	PRSCON=0				! stop cmd stream.
@@ -1897,7 +1897,7 @@ C
 	IF(WALK) WALK=RMDESC(0)			! describe room.
 	RETURN
 	END
-
+
 C CXAPPL- Conditional exit processors
 C
 C Declarations
@@ -1911,7 +1911,7 @@ C
 	GO TO (1000,2000,3000,4000,5000,6000,7000,8000,
 	1	9000,10000,11000,12000,13000,14000,15000),RI
 	CALL BUG(5,RI)
-
+
 C CXAPPL, PAGE 2
 C
 C C1-	Coffin-cure
@@ -1925,7 +1925,7 @@ C
 2000	IF(CAROFF) RETURN			! if flipped, nothing.
 2500	CALL RSPEAK(121)			! can't tell directions.
 5000	I=XELNT(XCOND)*RND(8)			! choose random exit.
-	XROOM1=(TRAVEL(REXIT(HERE)+I)).AND.XRMASK
+	XROOM1=AND((TRAVEL(REXIT(HERE)+I)),XRMASK)
 	CXAPPL=XROOM1				! return exit.
 	RETURN
 C
@@ -1948,8 +1948,8 @@ C
 	RETURN
 C
 3300	LITLDF=.TRUE.				! he can do it.
-	IF((OFLAG2(DOOR).AND.OPENBT).EQ.0)
-	1	OFLAG2(DOOR)=OFLAG2(DOOR).AND. .NOT.TCHBT
+	IF(AND(OFLAG2(DOOR),OPENBT).EQ.0)
+	1	OFLAG2(DOOR)=AND(OFLAG2(DOOR),NOT(TCHBT))
 	RETURN
 C
 C C4-	Frobozz flag (Magnet Room, fake exit)
@@ -1962,7 +1962,7 @@ C
 6000	IF(CAROFF) GO TO 2500			! if flipped, go spin.
 	FROBZF=.TRUE.				! otherwise, an exit.
 	RETURN
-
+
 C CXAPPL, PAGE 3
 C
 C C7-	Frobozz flag (bank alarm)
@@ -2009,7 +2009,7 @@ C
 9100	FROBZF=.FALSE.				! not here,
 	XSTRNG=817				! lose.
 	RETURN
-
+
 C CXAPPL, PAGE 4
 C
 C C10-	Frobozz flag (mirror exit)
@@ -2052,7 +2052,7 @@ C C13-	CPOUTF (Puzzle Room size entrance)
 C
 13000	CPHERE=52				! set substate.
 	RETURN
-
+
 C CXAPPL, PAGE 5
 C
 C C14-	Frobozz flag (Puzzle Room transitions)
@@ -2063,13 +2063,13 @@ C
 	XSTRNG=881				! assume no ladder.
 	IF(CPVEC(CPHERE+1).NE.-2) RETURN	! ladder here?
 	CALL RSPEAK(882)			! you win.
-	RFLAG(CPUZZ)=RFLAG(CPUZZ).AND..NOT.RSEEN	! reset seen.
+	RFLAG(CPUZZ)=AND(RFLAG(CPUZZ),NOT(RSEEN))	! reset seen.
 	FROBZF=.TRUE.				! let him out.
 	RETURN
 C
 14100	IF((CPHERE.NE.52).OR.(PRSO.NE.XWEST).OR..NOT.CPOUTF)
 	1	GO TO 14200			! w exit at door?
-	RFLAG(CPUZZ)=RFLAG(CPUZZ).AND..NOT.RSEEN	! reset seen.
+	RFLAG(CPUZZ)=AND(RFLAG(CPUZZ),NOT(RSEEN))	! reset seen.
 	FROBZF=.TRUE.				! yes, let him out.
 	RETURN
 C
