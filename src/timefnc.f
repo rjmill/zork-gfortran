@@ -31,7 +31,7 @@ C
 	RETURN
 C
 	END
-
+
 C CEVAPP- Clock event applicables
 C
 C Declarations
@@ -45,7 +45,7 @@ C
 C
 C Functions and data
 C
-	QOPEN(R)=(OFLAG2(R).AND.OPENBT).NE.0
+	QOPEN(R)=AND(OFLAG2(R),OPENBT).NE.0
 	QLEDGE(R)=(R.EQ.LEDG2).OR.(R.EQ.LEDG3).OR.(R.EQ.LEDG4)
 	DATA CNDTCK/50,20,10,5,0,156,156,156,157,0/
 	DATA LMPTCK/50,30,20,10,4,0,154,154,154,154,155,0/
@@ -62,7 +62,7 @@ C Return here to test for change in light.
 C
 50	IF(WASLIT.AND..NOT.LIT(HERE)) CALL RSPEAK(406)
 	RETURN
-
+
 C CEVAPP, PAGE 2
 C
 C CEV1--	Cure clock.  Let player slowly recover.
@@ -79,7 +79,7 @@ C
 	RVMNT=RVMNT+1				! raise water level.
 	IF(RVMNT.LE.16) RETURN			! if not full, exit.
 	CTICK(CEVMNT)=0				! full, disable clock.
-	RFLAG(MAINT)=RFLAG(MAINT).OR.RMUNG	! mung room.
+	RFLAG(MAINT)=OR(RFLAG(MAINT),RMUNG)	! mung room.
 	RDESC1(MAINT)=80			! say it is full of water.
 	IF(HERE.EQ.MAINT) CALL JIGSUP(81)	! drown him if present.
 	RETURN
@@ -92,14 +92,14 @@ C
 C CEV4--	Match.  Out it goes.
 C
 4000	CALL RSPEAK(153)			! match is out.
-	OFLAG1(MATCH)=OFLAG1(MATCH).AND. .NOT.(ONBT+FLAMBT+LITEBT)
+	OFLAG1(MATCH)=AND(OFLAG1(MATCH),NOT(ONBT+FLAMBT+LITEBT))
 	GO TO 50				! go see if now dark.
 C
 C CEV5--	Candle.  Describe growing dimness.
 C
 5000	CALL LITINT(CANDL,ORCAND,CEVCND,CNDTCK,10) ! do candle interrupt.
 	GO TO 50				! go see if now dark.
-
+
 C CEVAPP, PAGE 3
 C
 C CEV6--	Balloon.
@@ -209,13 +209,13 @@ C
 	CALL RSPEAK(542)
 	F=RMDESC(0)
 	RETURN
-
+
 C CEVAPP, PAGE 4
 C
 C CEV7--	Balloon burnup.
 C
 7000	DO 7100 I=1,OLNT			! find burning object
-	  IF((RECEP.EQ.OCAN(I)).AND.((OFLAG1(I).AND.FLAMBT).NE.0))
+	  IF((RECEP.EQ.OCAN(I)).AND.(AND(OFLAG1(I),FLAMBT).NE.0))
 	1	GO TO 7200			! in receptacle.
 7100	CONTINUE
 	CALL BUG(4,0)
@@ -236,7 +236,7 @@ C
 	CALL NEWSTA(BRICK,0,0,0,0)		! kill brick.
 	IF(BR.NE.HERE) GO TO 8100		! brick elsewhere?
 C
-	RFLAG(HERE)=RFLAG(HERE).OR.RMUNG	! blew self.
+	RFLAG(HERE)=OR(RFLAG(HERE),RMUNG)	! blew self.
 	RDESC1(HERE)=114			! mung room.
 	CALL JIGSUP(150)			! dead.
 	RETURN
@@ -248,12 +248,12 @@ C
 	IF(BR.NE.MSAFE) GO TO 8200		! blew safe room?
 	IF(BC.NE.SSLOT) RETURN			! was brick in safe?
 	CALL NEWSTA(SSLOT,0,0,0,0)		! kill slot.
-	OFLAG2(SAFE)=OFLAG2(SAFE).OR.OPENBT	! open safe.
+	OFLAG2(SAFE)=OR(OFLAG2(SAFE),OPENBT)	! open safe.
 	SAFEF=.TRUE.				! indicate safe blown.
 	RETURN
 C
 8200	DO 8250 I=1,OLNT			! blew wrong room.
-	  IF(QHERE(I,BR) .AND. ((OFLAG1(I).AND.TAKEBT).NE.0))
+	  IF(QHERE(I,BR) .AND. (AND(OFLAG1(I),TAKEBT).NE.0))
 	1	CALL NEWSTA(I,0,0,0,0)		! vanish contents.
 8250	CONTINUE
 	IF(BR.NE.LROOM) RETURN			! blew living room?
@@ -266,12 +266,12 @@ C
 	1	CALL RSPEAK(152)
 	CALL NEWSTA(FUSE,0,0,0,0)		! kill fuse.
 	RETURN
-
+
 C CEVAPP, PAGE 5
 C
 C CEV9--	Ledge munge.
 C
-9000	RFLAG(LEDG4)=RFLAG(LEDG4).OR.RMUNG	! ledge collapses.
+9000	RFLAG(LEDG4)=OR(RFLAG(LEDG4),RMUNG)	! ledge collapses.
 	RDESC1(LEDG4)=109
 	IF(HERE.EQ.LEDG4) GO TO 9100		! was he there?
 	CALL RSPEAK(110)			! no, narrow escape.
@@ -299,7 +299,7 @@ C
 C
 C CEV10--	Safe munge.
 C
-10000	RFLAG(MUNGRM)=RFLAG(MUNGRM).OR.RMUNG	! mung target.
+10000	RFLAG(MUNGRM)=OR(RFLAG(MUNGRM),RMUNG)	! mung target.
 	RDESC1(MUNGRM)=114
 	IF(HERE.EQ.MUNGRM) GO TO 10100		! is he present?
 	CALL RSPEAK(115)			! let him know.
@@ -309,10 +309,10 @@ C
 	RETURN
 C
 10100	I=116					! he's dead,
-	IF((RFLAG(HERE).AND.RHOUSE).NE.0) I=117	! one way or another.
+	IF(AND(RFLAG(HERE),RHOUSE).NE.0) I=117	! one way or another.
 	CALL JIGSUP(I)				! let him know.
 	RETURN
-
+
 C CEVAPP, PAGE 6
 C
 C CEV11--	Volcano gnome entrance.
@@ -339,7 +339,7 @@ C
 C
 C CEV14--	Sphere.  If expires, he's trapped.
 C
-14000	RFLAG(CAGER)=RFLAG(CAGER).OR.RMUNG	! mung room.
+14000	RFLAG(CAGER)=OR(RFLAG(CAGER),RMUNG)	! mung room.
 	RDESC1(CAGER)=147
 	WINNER=PLAYER				! kill player, not robot.
 	CALL JIGSUP(148)			! mung player.
@@ -350,7 +350,7 @@ C
 15000	ENDGMF=.TRUE.				! we're in endgame.
 	CALL RSPEAK(119)			! inform of endgame.
 	RETURN
-
+
 C CEVAPP, PAGE 7
 C
 C CEV16--	Forest murmurs.
@@ -382,7 +382,7 @@ C
 19000	CALL NEWSTA(ZGNOM,0,0,0,0)		! vanish.
 	IF(HERE.EQ.BKTWI) CALL RSPEAK(638)	! announce.
 	RETURN
-
+
 C CEVAPP, PAGE 8
 C
 C CEV20--	Start of endgame.
@@ -401,12 +401,12 @@ C
 	CALL NEWSTA(LAMP,0,0,0,PLAYER)		! give him lamp.
 	CALL NEWSTA(SWORD,0,0,0,PLAYER)		! give him sword.
 C
-	OFLAG1(LAMP)=(OFLAG1(LAMP).OR.LITEBT).AND. .NOT.ONBT
-	OFLAG2(LAMP)=OFLAG2(LAMP).OR.TCHBT
+	OFLAG1(LAMP)=AND(OR(OFLAG1(LAMP),LITEBT),NOT(ONBT))
+	OFLAG2(LAMP)=OR(OFLAG2(LAMP),TCHBT)
 	CFLAG(CEVLNT)=.FALSE.			! lamp is good as new.
 	CTICK(CEVLNT)=350
 	ORLAMP=0
-	OFLAG2(SWORD)=OFLAG2(SWORD).OR.TCHBT	! recreate sword.
+	OFLAG2(SWORD)=OR(OFLAG2(SWORD),TCHBT)	! recreate sword.
 	SWDACT=.TRUE.
 	SWDSTA=0
 C
@@ -430,7 +430,7 @@ C
 	IF((HERE.EQ.INMIR).OR.(MRHERE(HERE).EQ.1))
 	1	CALL RSPEAK(729)		! describe mirror.
 	RETURN
-
+
 C CEVAPP, PAGE 9
 C
 C CEV22--	Door closes.
@@ -472,7 +472,7 @@ C
 25000	CALL NEWSTA(BROCH,948,0,MAILB,0)	! put brochure in mailbox
 	BROC2F=.TRUE.				! flag arrival
 	RETURN
-
+
 C CEVAPP, PAGE 10
 C
 C CEV26--	Cyclops.
@@ -520,7 +520,7 @@ C
 	RETURN
 C
 	END
-
+
 C LITINT-	Light interrupt processor
 C
 C Declarations
@@ -533,7 +533,7 @@ C
 	CTR=CTR+1				! advance state cntr.
 	CTICK(CEV)=TICKS(CTR)			! reset interrupt.
 	IF(CTICK(CEV).NE.0) GO TO 100		! expired?
-	OFLAG1(OBJ)=OFLAG1(OBJ).AND. .NOT.(LITEBT+FLAMBT+ONBT)
+	OFLAG1(OBJ)=AND(OFLAG1(OBJ),NOT(LITEBT+FLAMBT+ONBT))
 	IF((OROOM(OBJ).EQ.HERE).OR.(OADV(OBJ).EQ.WINNER))
 	1	CALL RSPSUB(293,ODESC2(OBJ))
 	RETURN
@@ -544,7 +544,7 @@ C
 	RETURN
 C
 	END
-
+
 C FIGHTD- Intermove fight demon
 C
 C Declarations
@@ -557,7 +557,7 @@ C
 C Functions and data
 C
 	DATA ROUT/1/
-
+
 C FIGHTD, PAGE 2
 C
 	DO 2400 I=1,VLNT			! loop thru villains.
@@ -582,32 +582,32 @@ C
 2025	  VPROB(I)=VPROB(I)+10			! increase wakeup prob.
 	  GO TO 2400				! nothing else.
 C
-2050	  IF((OFLAG2(OBJ).AND.FITEBT).EQ.0) GO TO 2100
+2050	  IF(AND(OFLAG2(OBJ),FITEBT).EQ.0) GO TO 2100
 	  VOPPS(I)=OBJ				! fighting, set up opp.
 	  GO TO 2400
 C
 2100	  IF(RA.EQ.0) GO TO 2400		! not fighting,
 	  PRSA=FRSTQW				! set up probability
 	  IF(.NOT.OAPPLI(RA,0)) GO TO 2400	! of fighting.
-	  OFLAG2(OBJ)=OFLAG2(OBJ).OR.FITEBT
+	  OFLAG2(OBJ)=OR(OFLAG2(OBJ),FITEBT)
 	  VOPPS(I)=OBJ				! set up opp.
 	  PRSCON=0				! stop cmd stream.
 	  GO TO 2400
 C
-2200	  IF(((OFLAG2(OBJ).AND.FITEBT).EQ.0).OR.(RA.EQ.0))
+2200	  IF((AND(OFLAG2(OBJ),FITEBT).EQ.0).OR.(RA.EQ.0))
 	1	GO TO 2300			! nothing to do.
 	  PRSA=FIGHTW				! have a fight.
 	  F=OAPPLI(RA,0)
 2300	  IF(OBJ.EQ.THIEF) THFENF=.FALSE.	! turn off engrossed.
-	  AFLAG(PLAYER)=AFLAG(PLAYER).AND. .NOT.ASTAG
-	  OFLAG2(OBJ)=OFLAG2(OBJ).AND. .NOT.(STAGBT+FITEBT)
+	  AFLAG(PLAYER)=AND(AFLAG(PLAYER),NOT(ASTAG))
+	  OFLAG2(OBJ)=AND(OFLAG2(OBJ),NOT(STAGBT+FITEBT))
 	  IF((OCAPAC(OBJ).GE.0).OR.(RA.EQ.0))
 	1	GO TO 2400
 	  PRSA=INXW				! wake him up.
 	  F=OAPPLI(RA,0)
 	  OCAPAC(OBJ)=IABS(OCAPAC(OBJ))
 2400	CONTINUE
-
+
 C FIGHTD, PAGE 3
 C
 C Now do actual counterblows.
@@ -630,7 +630,7 @@ C
 	RETURN
 C
 	END
-
+
 C BLOW- Strike blow
 C
 C Declarations
@@ -661,7 +661,7 @@ C
 	2	4044,2048,4050,4054,5058,4063,4067,3071,1074,
 	3	4075,1079,4080,4084,4088,4092,4096,4100,1104,
 	4	4105,2109,4111,4115,4119,4123,4127,3131,3134/
-
+
 C BLOW, PAGE 2
 C
 	RA=OACTIO(V)				! get villain action,
@@ -674,10 +674,10 @@ C
 C Hero is attacker, villain is defender.
 C
 	PBLOSE=10				! bad lk prob.
-	OFLAG2(V)=OFLAG2(V).OR.FITEBT		! yes, villain gets mad.
-	IF((AFLAG(H).AND.ASTAG).EQ.0) GO TO 100	! hero stag?
+	OFLAG2(V)=OR(OFLAG2(V),FITEBT)		! yes, villain gets mad.
+	IF(AND(AFLAG(H),ASTAG).EQ.0) GO TO 100	! hero stag?
 	CALL RSPEAK(591)			! yes, cant fight.
-	AFLAG(H)=AFLAG(H).AND. .NOT.ASTAG
+	AFLAG(H)=AND(AFLAG(H),NOT(ASTAG))
 	RETURN
 C
 100	ATT=MAX0(1,FIGHTS(H,.TRUE.))		! get his strength.
@@ -686,7 +686,7 @@ C
 	OD=DEF
 	DWEAP=0					! assume no weapon.
 	DO 200 I=1,OLNT				! search villain.
-	  IF((OCAN(I).EQ.V).AND.((OFLAG2(I).AND.WEAPBT).NE.0))
+	  IF((OCAN(I).EQ.V).AND.(AND(OFLAG2(I),WEAPBT).NE.0))
 	1	DWEAP=I
 200	CONTINUE
 	IF(V.EQ.AOBJ(PLAYER)) GO TO 300		! killing self?
@@ -701,9 +701,9 @@ C Villain is attacker, hero is defender.
 C
 1000	PRSCON=0				! stop cmd stream.
 	PBLOSE=50				! bad lk prob.
-	AFLAG(H)=AFLAG(H).AND..NOT.ASTAG	! vill striking.
-	IF((OFLAG2(V).AND.STAGBT).EQ.0) GO TO 1200 ! vill staggered?
-	OFLAG2(V)=OFLAG2(V).AND. .NOT.STAGBT	! make him ok.
+	AFLAG(H)=AND(AFLAG(H),NOT(ASTAG))	! vill striking.
+	IF(AND(OFLAG2(V),STAGBT).EQ.0) GO TO 1200 ! vill staggered?
+	OFLAG2(V)=AND(OFLAG2(V),NOT(STAGBT))	! make him ok.
 	CALL RSPSUB(594,DV)			! describe.
 	RETURN
 C
@@ -713,7 +713,7 @@ C
 	IF(DEF.LE.0) RETURN			! dont allow dead def.
 	OD=FIGHTS(H,.FALSE.)
 	DWEAP=IABS(FWIM(0,WEAPBT,0,0,H,.TRUE.))	! find a weapon.
-
+
 C BLOW, PAGE 3
 C
 C Parties are now equipped.  DEF cannot be zero.
@@ -757,7 +757,7 @@ C
 D	TYPE 2650,RES,MI,I,J,MBASE
 D2650	FORMAT(' BLOW 2650-- ',5I7)
 	CALL RSPSUB(I,J)			! present result.
-
+
 C BLOW, PAGE 4
 C
 C Now apply result.
@@ -778,10 +778,10 @@ C
 	GO TO 4000
 C
 3500	IF(HFLG) GO TO 3550			! staggered.
-	AFLAG(H)=AFLAG(H).OR.ASTAG
+	AFLAG(H)=OR(AFLAG(H),ASTAG)
 	GO TO 4000
 C
-3550	OFLAG2(V)=OFLAG2(V).OR.STAGBT
+3550	OFLAG2(V)=OR(OFLAG2(V),STAGBT)
 	GO TO 4000
 C
 3600	CALL NEWSTA(DWEAP,0,HERE,0,0)		! lose weapon.
@@ -789,14 +789,14 @@ C
 	IF(HFLG) GO TO 4000			! if hero, done.
 	DWEAP=IABS(FWIM(0,WEAPBT,0,0,H,.TRUE.)) ! get new.
 	IF(DWEAP.NE.0) CALL RSPSUB(605,ODESC2(DWEAP))
-
+
 C BLOW, PAGE 5
 C
 4000	BLOW=RES				! return result.
 	IF(.NOT.HFLG) GO TO 4500		! hero?
 	OCAPAC(V)=DEF				! store new capacity.
 	IF(DEF.NE.0) GO TO 4100			! dead?
-	OFLAG2(V)=OFLAG2(V).AND. .NOT.FITEBT	! yes, not fighting.
+	OFLAG2(V)=AND(OFLAG2(V),NOT(FITEBT))	! yes, not fighting.
 	CALL RSPSUB(572,DV)			! he dies.
 	CALL NEWSTA(V,0,0,0,0)			! make him disappear.
 	IF(RA.EQ.0) RETURN			! if nx to do, exit.
@@ -821,7 +821,7 @@ C
 	RETURN
 C
 	END
-
+
 C SWORDD- Intermove sword demon
 C
 C Declarations
@@ -850,7 +850,7 @@ C
 500	SWDACT=.FALSE.				! dropped sword,
 	RETURN					! disable demon.
 	END
-
+
 C INFEST-	Subroutine to test for infested room
 C
 C Declarations
@@ -867,7 +867,7 @@ C
 	2	((R.EQ.INMIR).AND.(MLOC.EQ.MRG))
 	RETURN
 	END
-
+
 C AAPPLI- Applicables for adventurers
 C
 C Declarations
@@ -886,7 +886,7 @@ C Common false return.
 C
 10	AAPPLI=.FALSE.
 	RETURN
-
+
 C AAPPLI, PAGE 2
 C
 C A1--	Dead player.
@@ -937,7 +937,7 @@ C
 	  IF(QHERE(J,HERE)) I=958		! found something
 1450	CONTINUE
 	CALL RSPEAK(I)				! describe objects
-	IF((RFLAG(HERE).AND.RLIGHT).EQ.0) CALL RSPEAK(959)
+	IF(AND(RFLAG(HERE),RLIGHT).EQ.0) CALL RSPEAK(959)
 	GO TO 10				! don't handle
 C
 1500	IF(PRSA.NE.PRAYW) GO TO 1600
@@ -945,7 +945,7 @@ C
 	CALL RSPEAK(960)			! prayers are not answered
 	RETURN
 C
-1550	OFLAG1(LAMP)=OFLAG1(LAMP).OR.VISIBT	! back to life, restore lamp
+1550	OFLAG1(LAMP)=OR(OFLAG1(LAMP),VISIBT)	! back to life, restore lamp
 	AACTIO(PLAYER)=0			! disable dead player
 	DEADF=.FALSE.				! clear dead flag
 	F=MOVETO(FORE1,WINNER)			! move to forest
@@ -961,7 +961,7 @@ C
 1700	IF(PRSA.EQ.QUITW) GO TO 10		! if quit, don't handle
 	CALL RSPEAK(963)			! can't do it
 	RETURN
-
+
 C
 C A2--	Robot.  Process most commands given to robot.
 C
@@ -973,8 +973,8 @@ C
 	CALL NEWSTA(ROBOT,0,CAGER,0,0)		! install robot in room.
 	AROOM(AROBOT)=CAGER			! also move robot/adv.
 	CAGESF=.TRUE.				! cage solved.
-	OFLAG1(ROBOT)=OFLAG1(ROBOT).AND..NOT.NDSCBT
-	OFLAG1(SPHER)=OFLAG1(SPHER).OR.TAKEBT	! reset flags.
+	OFLAG1(ROBOT)=AND(OFLAG1(ROBOT),NOT(NDSCBT))
+	OFLAG1(SPHER)=OR(OFLAG1(SPHER),TAKEBT)	! reset flags.
 	PRSCON=0				! stop cmd stream.
 	RETURN
 C
@@ -994,12 +994,12 @@ C
 C
 2500	CALL RSPEAK(930)			! buzz, whirr, click!
 	GO TO 10				! don't handle here.
-
+
 C AAPPLI, PAGE 3
 C
 C A3--	Master.  Process most commands given to master.
 C
-3000	IF((OFLAG2(QDOOR).AND.OPENBT).NE.0) GO TO 3100
+3000	IF(AND(OFLAG2(QDOOR),OPENBT).NE.0) GO TO 3100
 	CALL RSPEAK(783)			! no master yet.
 	RETURN
 C
@@ -1026,7 +1026,7 @@ C
 	GO TO 10
 C
 	END
-
+
 C THIEFD-	Intermove thief demon
 C
 C Declarations
@@ -1041,10 +1041,10 @@ C
 C Functions AND DATA
 C
 	QSTILL(R)=(QHERE(STILL,R).OR.(OADV(STILL).EQ.-THIEF))
-
+
 C THIEFD, PAGE 2
 C
-	DFLAG=(PRSFLG.AND.64).NE.0		! set up detail flag.
+	DFLAG=AND(PRSFLG,64).NE.0		! set up detail flag.
 	ONCE=.FALSE.				! init flag.
 1025	WASLIT=LIT(HERE)			! record if lit.
 	RHERE=OROOM(THIEF)			! visible pos.
@@ -1063,18 +1063,18 @@ C
 	IF(QSTILL(TREAS)) CALL NEWSTA(STILL,0,0,THIEF,0)
 	DO 1040 I=1,OLNT			! loop through objects.
 	  IF(QHERE(I,THFPOS))
-	1	OFLAG1(I)=OFLAG1(I).OR.VISIBT	! make objects visible
+	1	OFLAG1(I)=OR(OFLAG1(I),VISIBT)	! make objects visible
 1040	CONTINUE
 1050	I=ROBADV(-THIEF,THFPOS,0,0)		! drop valuables.
-	IF(QHERE(EGG,THFPOS)) OFLAG2(EGG)=OFLAG2(EGG).OR.OPENBT
+	IF(QHERE(EGG,THFPOS)) OFLAG2(EGG)=OR(OFLAG2(EGG),OPENBT)
 	GO TO 1700
-
+
 C THIEFD, PAGE 3
 C
 C Thief and (live) winner in same room.
 C
 1100	IF(THFPOS.EQ.TREAS) GO TO 1700		! if treas room, nothing.
-	IF((RFLAG(THFPOS).AND.RLIGHT).NE.0) GO TO 1400 ! not if light.
+	IF(AND(RFLAG(THFPOS),RLIGHT).NE.0) GO TO 1400 ! not if light.
 	IF(DFLAG) PRINT 20
 20	FORMAT(' THIEFD-- IN ADV ROOM')
 	IF(THFFLG) GO TO 1300			! thief announced?
@@ -1084,11 +1084,11 @@ C
 	THFFLG=.TRUE.				! thief is announced.
 	RETURN
 C
-1150	IF((RHERE.EQ.0).OR.((OFLAG2(THIEF).AND.FITEBT).EQ.0))
+1150	IF((RHERE.EQ.0).OR.(AND(OFLAG2(THIEF),FITEBT).EQ.0))
 	1	GO TO 1200			! if visible and fight.
 	IF(WINNIN(THIEF,PLAYER)) GO TO 1175	! winning?
 	CALL NEWSTA(THIEF,584,0,0,0)		! no, vanish thief.
-	OFLAG2(THIEF)=OFLAG2(THIEF).AND. .NOT.FITEBT
+	OFLAG2(THIEF)=AND(OFLAG2(THIEF),NOT(FITEBT))
 	IF(QSTILL(THFPOS)) CALL NEWSTA(STILL,0,0,THIEF,0)
 	RETURN
 C
@@ -1112,7 +1112,7 @@ C
 	1	CALL RSPEAK(915)		! leave player in dark?
 	RHERE=0
 	GO TO 1700				! onward.
-
+
 C THIEFD, PAGE 4
 C
 C Not in adventurers room, or adventurer dead, or room lit.
@@ -1122,7 +1122,7 @@ C
 	IF(DFLAG) PRINT 30,THFPOS
 30	FORMAT(' THIEFD-- IN ROOM ',I4)
 	IF(QSTILL(THFPOS)) CALL NEWSTA(STILL,0,0,THIEF,0)
-	IF((RFLAG(THFPOS).AND.RSEEN).EQ.0) GO TO 1700	! cant rob unseen.
+	IF(AND(RFLAG(THFPOS),RSEEN).EQ.0) GO TO 1700	! cant rob unseen.
 	RMK=1045				! first object to vanish.
 	I=ROBRM(THFPOS,75,0,0,-5555)		! rob room 75% to hyperspace.
 	DO 1410 I=1,OLNT			! loop through objects.
@@ -1137,12 +1137,12 @@ C
 	1	(HERE.LT.MAZE1).OR.(HERE.GT.MAZ15)) GO TO 1500
 	DO 1450 I=1,OLNT			! both in maze.
 	  IF(.NOT.QHERE(I,THFPOS).OR.PROB(60,60).OR.(I.EQ.WATER).OR.
-	1	((OFLAG1(I).AND.(VISIBT+TAKEBT)).NE.(VISIBT+TAKEBT)))
+	1	(AND(OFLAG1(I),(VISIBT+TAKEBT)).NE.(VISIBT+TAKEBT)))
 	2	GO TO 1450
 	  IF(.NOT.DEADF) CALL RSPSUB(590,ODESC2(I))	! thief's remarks.
 	  IF(PROB(40,20)) GO TO 1700
 	  CALL NEWSTA(I,0,0,0,-THIEF)		! steal it.
-	  OFLAG2(I)=OFLAG2(I).OR.TCHBT
+	  OFLAG2(I)=OR(OFLAG2(I),TCHBT)
 	  GO TO 1700
 1450	CONTINUE
 	GO TO 1700
@@ -1150,15 +1150,15 @@ C
 1500	DO 1550 I=1,OLNT			! not in maze.
 	  IF(.NOT.QHERE(I,THFPOS).OR.(OTVAL(I).NE.0).OR.
 	1	PROB(80,60).OR.(I.EQ.WATER).OR.
-	2	((OFLAG1(I).AND.(VISIBT+TAKEBT)).NE.(VISIBT+TAKEBT)))
+	2	(AND(OFLAG1(I),(VISIBT+TAKEBT)).NE.(VISIBT+TAKEBT)))
 	3	GO TO 1550
 	  CALL NEWSTA(I,0,0,0,-THIEF)
-	  OFLAG2(I)=OFLAG2(I).OR.TCHBT
+	  OFLAG2(I)=OR(OFLAG2(I),TCHBT)
 	  IF((THFPOS.EQ.HERE).AND..NOT.DEADF)
 	1	CALL RSPSUB(RMK,ODESC2(I))	! vanishes before you.
 	  GO TO 1700
 1550	CONTINUE
-
+
 C THIEFD, PAGE 5
 C
 C Now move to new room.
@@ -1170,7 +1170,7 @@ C
 	ONCE=.NOT.ONCE
 1750	THFPOS=THFPOS-1				! next room.
 	IF(THFPOS.LE.0) THFPOS=RLNT
-	IF((RFLAG(THFPOS).AND.(RLAND+RSACRD+REND)).NE.RLAND)
+	IF(AND(RFLAG(THFPOS),(RLAND+RSACRD+REND)).NE.RLAND)
 	1	GO TO 1750			! must be land, profane.
 	THFFLG=.FALSE.				! not announced.
 	GO TO 1025				! once more.
