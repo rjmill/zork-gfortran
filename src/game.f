@@ -279,7 +279,7 @@ C
 	RETURN
 910	FORMAT(' I can''t open "DINDX.DAT".')
 920	FORMAT(' "DINDX.DAT" is version ',I1,'.',I1,A,'.'/
-	1	' I require version ',I1,'.',I1,A,'.')
+	1 ' I require version ',I1,'.',I1,A,'.')
 960	FORMAT(' I can''t open "DTEXT.DAT".')
 980	FORMAT(
 	1 ' Suddenly a sinister, wraithlike figure appears before you'/
