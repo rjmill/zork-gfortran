@@ -667,8 +667,8 @@ C
       RA=OACTIO(V)                              ! get villain action,
       DV=ODESC2(V)                              ! description.
       BLOW=RMISS                                ! assume no result.
-D       TYPE 10,H,V,RMK,HFLG,OUT
-D10     FORMAT(' BLOW 10-- ',3I7,L7,I7)
+D     TYPE 10,H,V,RMK,HFLG,OUT
+D10   FORMAT(' BLOW 10-- ',3I7,L7,I7)
       IF(.NOT.HFLG) GO TO 1000                  ! hero striking blow?
 C
 C Hero is attacker, villain is defender.
@@ -720,8 +720,8 @@ C Parties are now equipped.  DEF cannot be zero.
 C ATT must be > 0.
 C
 2000  CONTINUE
-D       TYPE 2050,ATT,OA,DEF,OD,DWEAP
-D2050   FORMAT(' BLOW 2050-- ',5I7)
+D     TYPE 2050,ATT,OA,DEF,OD,DWEAP
+D2050 FORMAT(' BLOW 2050-- ',5I7)
       IF(DEF.GT.0) GO TO 2100                   ! def alive?
       RES=RKILL
       IF(HFLG) CALL RSPSUB(595,DV)              ! deader.
@@ -754,8 +754,8 @@ C
       I=(MOD(MI,1000)+RND(MI/1000))+MBASE+1
       J=DV
       IF(.NOT.HFLG .AND.(DWEAP.NE.0)) J=ODESC2(DWEAP)
-D       TYPE 2650,RES,MI,I,J,MBASE
-D2650   FORMAT(' BLOW 2650-- ',5I7)
+D     TYPE 2650,RES,MI,I,J,MBASE
+D2650 FORMAT(' BLOW 2650-- ',5I7)
       CALL RSPSUB(I,J)                          ! present result.
 
 C BLOW, PAGE 4
