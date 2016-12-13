@@ -2,3 +2,4 @@ src/*.o
 dungeon
 dungeon_distribution.tgz
 dist/
+build/
