@@ -1,34 +1,58 @@
-# DUNGEON (Zork I)
+DUNGEON (Zork I)
 ==============
 
 This is Robert Supnik's Dungeon V3.2B for various DEC Fortrans, ported to MS-DOS
-by Volker Blasius, and then ported to work with g77 by David Kinder.
+by Volker Blasius, then ported to work with g77 by David Kinder, and then ported
+to work with gfortran by RJ Miller.
 
-I've made changes to the code so that it will compile using gfortran on Linux. If
-you already have gfortran installed, compiling it should work with
+I've made changes to the code so that it will compile using gfortran on Linux.
+If you have gfortran and make already installed, you can build and run with
 ```
-# at the root level of this project
-gfortran -fd-lines-as-comments src/*.f -o dungeon
+# in project root
+./dungeon.sh
 ```
 
-If that doesn't work, feel free to open an issue describing your problem. I'm
-specifically targeting Arch Linux and Ubuntu 14.04 for this, but I'd like it
-to work on all platforms if possible and will help as much as I can.
+If you find any bugs or problems, please feel free to open an issue describing
+your problem. I'll try to help out as best as I can. I'm specifically targeting
+Arch Linux and Ubuntu 14.04 at this point, but ultimately, I want it to work on
+all major operating systems.
 
-My next steps are getting a proper Makefile and refactoring the code to the
-point where I can use it as a library in other Fortran projects. If I'm feeling
-particularly crazy, I might do a full port to Fortran 90 or 95, but I doubt I'll
-do that unless I bump into some pressing practical reasons to do so.
+
+### Roadmap
+
+- [x] get it running on modern Linux
+- [x] convert from the non-standard tab format to standard fixed format
+- [ ] streamline build process
+  - [x] Makefile
+  - [x] script to build and run the project in one go
+  - [ ] more scripts
+- [ ] beef up docs
+- [ ] put it into a docker container
+- [ ] decrypt the game files
+- [ ] update the in-game text
+- [ ] turn the game into an API
+- [ ] integrate game with SMS for Zork to go
+
 
 ### To Build
-* cd source
-* `make clean`
-* make
+
+```
+# in project root
+make
+```
+
 
 ### To Run
-* ./source/dungeon
-The dungeon program must currently be run in the same directory as the data files.
+
+```
+cd build
+./dungeon
+```
+
 
 ### Tools you need to build
-Any FORTRAN77 compatible compiler can be used, but the consensus is to use the GNU compler as it runs a good balance of strictness and flexibility.
-* [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries)
+
+Any FORTRAN77 compatible compiler can be used, but the consensus is to use the
+GNU compler as it runs a good balance of strictness and flexibility.
+- [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries)
+- make
