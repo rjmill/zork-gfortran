@@ -1,5 +1,10 @@
 FC := gfortran
-
+# gfortran options:
+#  -g ->include source level debugging support
+#  -ffixed-form -> for Fortran 77 fixed form parsing
+#  -fd-lies-as-code -> include debugging statements
+#  -fd-lines-as-comments -> ignore debugging statements
+#DEBUG= -fd-lines-as-code
 FFLAGS ?= -g -ffixed-form -fd-lines-as-comments
 
 SRC_DIR := src
